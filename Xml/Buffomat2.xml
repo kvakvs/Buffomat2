@@ -175,7 +175,7 @@
         Contains list of spells selected to be casted, sorted by distance and cast-ability
         Contains the cast button
         -->
-      <Frame name="BM2_LIST_TAB">
+      <Frame name="BM2_TASKS_TAB">
         <Anchors>
           <Anchor point="TOPLEFT">
             <Offset>
@@ -194,7 +194,7 @@
           Cast Button
           Runs the task from the task list and casts the spell
           -->
-          <Button name="$parent_Button" inherits="BM2_TEMPLATE_SECURE_BUTTON">
+          <Button name="$parent_CAST_BUTTON" inherits="BM2_TEMPLATE_SECURE_BUTTON">
             <Anchors>
               <Anchor point="BOTTOMLEFT">
                 <Offset>
@@ -210,15 +210,15 @@
           </Button>
 
           <ScrollingMessageFrame enableMouseWheel="true"
-                                 name="$parent_MessageFrame"
-                                 parentKey="MessageFrame"
+                                 name="$parent_MESSAGE_FRAME"
+                                 parentKey="MESSAGE_FRAME"
                                  enableMouseClicks="true">
             <Anchors>
               <Anchor point="TOP"/>
               <Anchor point="LEFT" relativePoint="LEFT"
-                      relativeTo="$parent_Button"/>
+                      relativeTo="$parent_CAST_BUTTON"/>
               <Anchor point="BOTTOMRIGHT" relativePoint="TOPRIGHT"
-                      relativeTo="$parent_Button">
+                      relativeTo="$parent_CAST_BUTTON">
                 <Offset>
                   <AbsDimension y="5" x="0"/>
                 </Offset>

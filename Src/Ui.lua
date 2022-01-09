@@ -2,6 +2,8 @@ local TOCNAME, _ = ...
 
 ---@class Bm2UiModule
 local bm2ui = Bm2Module.DeclareModule("Ui")
+---@type Bm2ConstModule
+local bm2const = Bm2Module.Import("Const")
 ---@type Bm2TranslationModule
 local translation = Bm2Module.Import("Translation")
 local function _t(key)
@@ -230,7 +232,7 @@ function bm2ui.SetupMainWindow()
   BM2_MAIN_WINDOW_TITLE:SetText(_t('Buffomat') .. " - " .. _t('Solo'))
   bm2ui.EnableMoving(BM2_MAIN_WINDOW, bm2ui.SaveWindowPosition)
 
-  bm2ui.AddTab(BM2_MAIN_WINDOW, _t('Tasks'), BM2_LIST_TAB, true)
+  bm2ui.AddTab(BM2_MAIN_WINDOW, _t('Tasks'), BM2_TASKS_TAB, true)
   bm2ui.AddTab(BM2_MAIN_WINDOW, _t('Spells'), BM2_SPELL_TAB, true)
   bm2ui.SelectTab(BM2_MAIN_WINDOW, 1)
 
@@ -238,4 +240,17 @@ function bm2ui.SetupMainWindow()
 
   BM2_MAIN_WINDOW:SetMinResize(180, 90)
   bm2ui.EnableSizing(BM2_MAIN_WINDOW, 8, nil, bm2ui.SaveWindowPosition)
+
+  -- Set up buttons in the tasks tab
+  local messageFrame = BM2_TASKS_TAB_MESSAGE_FRAME
+  messageFrame:SetFading(false);
+  messageFrame:SetFontObject(GameFontNormalSmall);
+  messageFrame:SetJustifyH("LEFT");
+  messageFrame:SetHyperlinksEnabled(true);
+  messageFrame:Clear()
+  messageFrame:SetMaxLines(100)
+
+  local castButton = BM2_TASKS_TAB_CAST_BUTTON
+  castButton:SetAttribute("type", "macro")
+  castButton:SetAttribute("macro", bm2const.MacroName)
 end

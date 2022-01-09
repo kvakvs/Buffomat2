@@ -15,6 +15,7 @@
 
 # Module before all
 Src/Module.lua
+Src/Const.lua
 # Tooltip and UI: load them before XMLs - they are using it
 Src/Ui.lua
 Src/Tooltip.lua
