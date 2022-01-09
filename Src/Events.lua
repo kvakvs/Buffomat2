@@ -18,10 +18,10 @@ end
 
 ---Unit power changed (only for mana events)
 ---UNIT_POWER_UPDATE: "unitTarget", "powerType"
-local function bm2event_UNIT_POWER_UPDATE(unitTarget, powerType)
+local function bm2event_UNIT_POWER_UPDATE(_eventName, unitTarget, powerType)
   if powerType == "MANA" and UnitIsUnit(unitTarget, "player") and not InCombatLockdown() then
-    local max_mana = BOM.PlayerManaMax or 0
-    local actual_mana = UnitPower("player", 0) or 0
+    local max_mana = UnitPowerMax("player", bm2const.POWER_MANA) or 0
+    local actual_mana = UnitPower("player", bm2const.POWER_MANA) or 0
 
     if max_mana <= actual_mana then
       Bm2Addon:RequestForceUpdate("power change")
@@ -133,35 +133,35 @@ local function bm2event_UI_ERROR_MESSAGE(_errorType, message)
   --BOM.CheckForError = false
 end
 
-local function bm2event_UNIT_SPELLCAST_START(unit)
+local function bm2event_UNIT_SPELLCAST_START(_eventName, unit)
   if UnitIsUnit(unit, "player") and not Bm2Addon.playerIsCasting then
     Bm2Addon.playerIsCasting = "cast"
     Bm2Addon:RequestForceUpdate("player is casting")
   end
 end
 
-local function bm2event_UNIT_SPELLCAST_STOP(unit)
+local function bm2event_UNIT_SPELLCAST_STOP(_eventName, unit)
   if UnitIsUnit(unit, "player") and Bm2Addon.playerIsCasting then
     Bm2Addon.playerIsCasting = nil
     Bm2Addon:RequestForceUpdate("casting stop")
   end
 end
 
-local function bm2event_UNIT_SPELLCHANNEL_START(unit)
+local function bm2event_UNIT_SPELLCHANNEL_START(_eventName, unit)
   if UnitIsUnit(unit, "player") and not Bm2Addon.playerIsCasting then
     Bm2Addon.playerIsCasting = "channel"
     Bm2Addon:RequestForceUpdate("player is channeling")
   end
 end
 
-local function bm2event_UNIT_SPELLCHANNEL_STOP(unit)
+local function bm2event_UNIT_SPELLCHANNEL_STOP(_eventName, unit)
   if UnitIsUnit(unit, "player") and Bm2Addon.playerIsCasting then
     Bm2Addon.playerIsCasting = nil
     Bm2Addon.RequestForceUpdate("channeling stop")
   end
 end
 
-local function bm2event_UNIT_SPELLCAST_errors(unit)
+local function bm2event_UNIT_SPELLCAST_errors(_eventName, unit)
   if UnitIsUnit(unit, "player") then
     Bm2Addon:RequestForceUpdate("cast end")
     --Bm2Addon.playerIsCasting = nil
@@ -172,7 +172,9 @@ function bm2events.RegisterEarlyEvents()
   --Bm2Addon:RegisterEvent("PLAYER_LOGIN", function()
   Bm2Addon:RegisterEvent("PLAYER_ENTERING_WORLD", function() Bm2Addon:OnInitializeStep2() end)
   Bm2Addon:RegisterEvent("LOADING_SCREEN_DISABLED", function() Bm2Addon:OnInitializeStep2() end)
+end
 
+function bm2events.RegisterLateEvents()
   -- Events which might change active state of Buffomat
   Bm2Addon:RegisterEvent("ZONE_CHANGED", function()
     Bm2Addon:RequestForceUpdate("zone changed")

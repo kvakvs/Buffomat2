@@ -1,6 +1,10 @@
 ---@class Bm2ConstModule
 local bm2const = Bm2Module.DeclareModule("Const")
 
+-- Unit power type for MANA https://wowwiki-archive.fandom.com/wiki/PowerType
+-- https://wowwiki-archive.fandom.com/wiki/API_UnitPowerMax
+bm2const.POWER_MANA = 0
+
 bm2const.LegacyMacroName = "Buff'o'mat"
 bm2const.MacroName = "Buffomat2"
 

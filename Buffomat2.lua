@@ -12,7 +12,7 @@ local bm2 = Bm2Addon ---@type Bm2Addon
 ---@type Bm2OptionsModule
 local options = Bm2Module.Import("Options")
 ---@type Bm2EventsModule
-local events = Bm2Module.Import("Events");
+local bm2events = Bm2Module.Import("Events");
 ---@type Bm2SlashModule
 local slash = Bm2Module.Import("Slash");
 ---@type Bm2UiModule
@@ -37,7 +37,7 @@ end
 
 function bm2:OnInitialize()
   bm2.db = LibStub("AceDB-3.0"):New("Bm2Conf", options:GetDefaults(), true)
-  events.RegisterEarlyEvents()
+  bm2events.RegisterEarlyEvents()
 end
 
 local bm2Step2Done = false
@@ -54,6 +54,7 @@ function bm2:OnInitializeStep2()
   configDialog:AddToBlizOptions("Buffomat2", "Buffomat 2");
 
   bm2ui.SetupMainWindow()
+  bm2events.RegisterLateEvents()
 end
 
 function bm2:HandleSlash(input)
@@ -75,6 +76,7 @@ end
 function bm2:UpdateSpellsTab(reason)
 end
 
+---@param reason string|nil
 function bm2:RequestForceUpdate(reason)
   bm2.forceUpdate = reason
 end

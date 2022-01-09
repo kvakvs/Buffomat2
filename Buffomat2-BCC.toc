@@ -23,7 +23,6 @@ Src/Tooltip.lua
 Xml/embeds.xml
 Xml/Buffomat2.xml
 
-Src/Addon.lua
 Src/Translation.lua
 Src/Events.lua
 Src/Slash.lua
