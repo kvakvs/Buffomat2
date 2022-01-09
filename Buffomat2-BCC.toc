@@ -1,0 +1,26 @@
+﻿## Interface: 20502
+
+## Title: Buffomat2 for TBC Classic
+## Author: kvakvs
+## Version: 2022.1.0
+## Notes: Buff and resurrection automation for all classes in Classic
+## X-Curse-Project-ID: 450627
+
+## OptionalDeps: Ace3
+## DefaultState: Enabled
+## LoadOnDemand: 0
+
+## SavedVariablesPerCharacter: Bm2CharacterConf
+## SavedVariables: Bm2Conf
+
+Src/Module.lua
+
+Xml/embeds.xml
+Xml/Buffomat2.xml
+
+Src/Addon.lua
+Src/Tooltip.lua
+Src/Translation.lua
+Src/Options/Options.lua
+
+Buffomat2.lua
