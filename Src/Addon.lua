@@ -1,1 +1,0 @@
----@class Bm2Addon

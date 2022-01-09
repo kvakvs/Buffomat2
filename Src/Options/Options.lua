@@ -25,6 +25,22 @@ local function opt_autoShow(order)
   }
 end
 
+local function opt_buffCurrentTarget(order)
+  return {
+    type  = "toggle",
+    order = order,
+    name  = _t_fn('Buff current target first'),
+    desc  = _t_fn('Start buffing with the currently targeted raid or party member as a priority.'),
+    width = 1.5,
+    get   = function()
+      return Bm2Addon.db.char.buffCurrentTarget;
+    end,
+    set   = function(info, value)
+      Bm2Addon.db.char.buffCurrentTarget = value;
+    end,
+  }
+end
+
 local function opt_scanInRestAreas(order)
   return {
     type  = "toggle",
@@ -235,12 +251,13 @@ function options:MakeGeneralTab()
         name   = _t_fn('Behavioral settings'),
         args   = {
           autoShow            = opt_autoShow(1),
-          preventPvpTag       = opt_preventPvpTag(2),
-          autoDismountGround  = opt_autoDismountGround(3),
-          autoDismountFlying  = opt_autoDismountFlying(4),
-          autoStand           = opt_autoStand(5),
-          autoLeaveShapeshift = opt_autoLeaveShapeshift(6),
-          autoCrusaderAura    = opt_autoCrusaderAura(7),
+          buffCurrentTarget   = opt_buffCurrentTarget(2),
+          preventPvpTag       = opt_preventPvpTag(3),
+          autoDismountGround  = opt_autoDismountGround(4),
+          autoDismountFlying  = opt_autoDismountFlying(5),
+          autoStand           = opt_autoStand(6),
+          autoLeaveShapeshift = opt_autoLeaveShapeshift(7),
+          autoCrusaderAura    = opt_autoCrusaderAura(8),
         }
       },
       g_activateWhen = {
@@ -263,14 +280,19 @@ end
 
 function options:GetDefaults()
   return {
-    global = {},
+    global = {
+    },
     char   = {
+      -- TODO: durationCache has names populated from the known spells when updating spells
+      durationCache       = {}, -- [spellname] => GetTime(), for spells known to Buffomat
+
       mainWindowX         = 0,
       mainWindowY         = 0,
       mainWindowWidth     = 180,
       mainWindowHeight    = 90,
 
       autoShow            = true,
+      buffCurrentTarget   = true,
       scanInRestAreas     = true,
       scanInOpenWorld     = true,
       scanInDungeons      = true,
