@@ -265,6 +265,11 @@ function options:GetDefaults()
   return {
     global = {},
     char   = {
+      mainWindowX         = 0,
+      mainWindowY         = 0,
+      mainWindowWidth     = 180,
+      mainWindowHeight    = 90,
+
       autoShow            = true,
       scanInRestAreas     = true,
       scanInOpenWorld     = true,

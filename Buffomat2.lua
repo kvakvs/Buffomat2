@@ -9,6 +9,8 @@ local options = Bm2Module.Import("Options")
 local events = Bm2Module.Import("Events");
 ---@type Bm2SlashModule
 local slash = Bm2Module.Import("Slash");
+---@type Bm2UiModule
+local bm2ui = Bm2Module.Import("Ui");
 ---@type Bm2TranslationModule
 local translation = Bm2Module.Import("Translation")
 local function _t(key)
@@ -32,7 +34,12 @@ function bm2:OnInitialize()
   events:RegisterEarlyEvents()
 end
 
+local bm2Step2Done = false
+
 function bm2:OnInitializeStep2()
+  if (bm2Step2Done) then return end
+  bm2Step2Done = true
+
   bm2:RegisterChatCommand("bm2", "HandleSlash")
 
   LibStub("AceConfig-3.0"):RegisterOptionsTable("Buffomat2", bm2MakeOptions())
@@ -40,8 +47,16 @@ function bm2:OnInitializeStep2()
   local configDialog = LibStub("AceConfigDialog-3.0")
   configDialog:AddToBlizOptions("Buffomat2", "Buffomat 2");
 
+  ---------------------------
   -- Set up the main window
+  ---------------------------
   BM2_MAIN_WINDOW_TITLE:SetText(_t('Buffomat') .. " - " .. _t('Solo'))
+  bm2ui.EnableMoving(BM2_MAIN_WINDOW, bm2ui.SaveWindowPosition)
+  BM2_MAIN_WINDOW:SetMinResize(180, 90)
+
+  bm2ui.AddTab(BM2_MAIN_WINDOW, _t('Tasks'), BM2_LIST_TAB, true)
+  bm2ui.AddTab(BM2_MAIN_WINDOW, _t('Spells'), BM2_SPELL_TAB, true)
+  bm2ui.SelectTab(BM2_MAIN_WINDOW, 1)
 end
 
 function bm2:HandleSlash(input)
