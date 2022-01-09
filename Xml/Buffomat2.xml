@@ -2,7 +2,17 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ../UI.xsd">
 
-  <Button name="BM2_CAST_BTN" inherits="SecureActionButtonTemplate" virtual="true">
+  <Button name="BM2_TEMPLATE_MINI_BUTTON" inherits="UIPanelButtonTemplate"
+          virtual="true">
+    <NormalFont style="GameFontNormalSmall"/>
+    <HighlightFont style="GameFontHighlightSmall"/>
+    <DisabledFont style="GameFontDisableSmall"/>
+    <Size>
+      <AbsDimension x="20" y="18"/>
+    </Size>
+  </Button>
+
+  <Button name="BM2_TEMPLATE_SECURE_BUTTON" inherits="SecureActionButtonTemplate" virtual="true">
     <Size>
       <AbsDimension y="22" x="0"/>
     </Size>
@@ -57,4 +67,243 @@
     <HighlightTexture inherits="UIPanelButtonHighlightTexture"/>
   </Button>
 
+
+  <Frame name="BM2_TEMPLATE_BACKDROP" virtual="true">
+    <Scripts>
+      <OnLoad inherit="prepend">
+        if BackdropTemplateMixin then Mixin(self, BackdropTemplateMixin); end
+      </OnLoad>
+      <OnSizeChanged inherit="prepend">
+        if self.OnBackdropSizeChanged then self:OnBackdropSizeChanged(); end
+      </OnSizeChanged>
+    </Scripts>
+  </Frame>
+
+  <Frame name="BM2_MAIN_WINDOW" parent="UIParent" hidden="false"
+         enableMouse="true" frameStrata="MEDIUM" clampedToScreen="true"
+         inherits="BM2_TEMPLATE_BACKDROP">
+    <Size>
+      <AbsDimension x="256" y="170"/>
+    </Size>
+    <Anchors>
+      <Anchor point="CENTER"/>
+      <Offset>
+        <AbsDimension x="300" y="0"/>
+      </Offset>
+    </Anchors>
+
+    <Layers>
+      <Layer level="BACKGROUND">
+        <FontString name="$parent_TITLE" inherits="GameFontNormal" text="title"
+                    justifyH="LEFT" justifyV="TOP">
+          <Anchors>
+            <Anchor point="TOPLEFT">
+              <Offset>
+                <AbsDimension x="10" y="-10"/>
+              </Offset>
+            </Anchor>
+            <Anchor point="BOTTOMRIGHT" relativePoint="TOPRIGHT">
+              <Offset>
+                <AbsDimension x="-10" y="-30"/>
+              </Offset>
+            </Anchor>
+          </Anchors>
+        </FontString>
+      </Layer>
+    </Layers>
+
+    <Frames>
+
+      <!-- headline -->
+      <Button name="$parent_CLOSE_BUTTON" inherits="BM2_TEMPLATE_MINI_BUTTON"
+              text="|TInterface\Buttons\UI-StopButton:0|t">
+        <Size>
+          <AbsDimension x="18" y="18"/>
+        </Size>
+        <Anchors>
+          <Anchor point="TOPRIGHT" relativeTo="$parent"
+                  relativePoint="TOPRIGHT">
+            <Offset>
+              <AbsDimension x="-6" y="-6"/>
+            </Offset>
+          </Anchor>
+        </Anchors>
+        <Scripts>
+<!--          <OnClick>BUFFOMAT_ADDON.BtnClose()</OnClick>-->
+          <OnLoad>Bm2Module.Import("Tooltip"):Set(self, "TooltipCloseButton");</OnLoad>
+        </Scripts>
+      </Button>
+
+      <!--
+        Settings button, opens BOM settings
+        -->
+      <Button name="$parent_SETTINGS_BUTTON" inherits="BM2_TEMPLATE_MINI_BUTTON"
+              text="|TInterface\Buttons\UI-OptionsButton:0|t">
+        <Size>
+          <AbsDimension x="18" y="18"/>
+        </Size>
+        <Anchors>
+          <Anchor point="RIGHT" relativeTo="$parent_CLOSE_BUTTON"
+                  relativePoint="LEFT"/>
+        </Anchors>
+        <Scripts>
+<!--          <OnMouseDown>BUFFOMAT_ADDON.BtnSettings(self)</OnMouseDown>-->
+          <OnLoad>Bm2Module.Import("Tooltip"):Set(self, "TooltipSettingsButton");</OnLoad>
+        </Scripts>
+      </Button>
+
+      <!--
+        Macro button, draggable becomes a macro link
+        -->
+      <Button name="$parent_MACRO_BUTTON" inherits="BM2_TEMPLATE_MINI_BUTTON"
+              text="Macro">
+        <Size>
+          <AbsDimension x="36" y="18"/>
+        </Size>
+        <Anchors>
+          <Anchor point="RIGHT" relativeTo="$parent_SETTINGS_BUTTON"
+                  relativePoint="LEFT"/>
+        </Anchors>
+        <Scripts>
+<!--          <OnMouseDown>BUFFOMAT_ADDON.BtnMacro()</OnMouseDown>-->
+          <OnLoad>Bm2Module.Import("Tooltip"):Set(self, "TooltipMacroButton");</OnLoad>
+        </Scripts>
+      </Button>
+
+      <!--
+        ListTab
+        Contains list of spells selected to be casted, sorted by distance and cast-ability
+        Contains the cast button
+        -->
+      <Frame name="BM2_LIST_TAB">
+        <Anchors>
+          <Anchor point="TOPLEFT">
+            <Offset>
+              <AbsDimension x="8" y="-30"/>
+            </Offset>
+          </Anchor>
+          <Anchor point="BOTTOMRIGHT">
+            <Offset>
+              <AbsDimension x="-8" y="8"/>
+            </Offset>
+          </Anchor>
+        </Anchors>
+
+        <Frames>
+          <!--
+          Cast Button
+          Runs the task from the task list and casts the spell
+          -->
+          <Button name="$parent_Button" inherits="BM2_TEMPLATE_SECURE_BUTTON">
+            <Anchors>
+              <Anchor point="BOTTOMLEFT">
+                <Offset>
+                  <AbsDimension x="2" y="2"/>
+                </Offset>
+              </Anchor>
+              <Anchor point="BOTTOMRIGHT">
+                <Offset>
+                  <AbsDimension x="-18" y="12"/>
+                </Offset>
+              </Anchor>
+            </Anchors>
+          </Button>
+
+          <ScrollingMessageFrame enableMouseWheel="true"
+                                 name="$parent_MessageFrame"
+                                 parentKey="MessageFrame"
+                                 enableMouseClicks="true">
+            <Anchors>
+              <Anchor point="TOP"/>
+              <Anchor point="LEFT" relativePoint="LEFT"
+                      relativeTo="$parent_Button"/>
+              <Anchor point="BOTTOMRIGHT" relativePoint="TOPRIGHT"
+                      relativeTo="$parent_Button">
+                <Offset>
+                  <AbsDimension y="5" x="0"/>
+                </Offset>
+              </Anchor>
+            </Anchors>
+            <Size>
+              <AbsDimension x="270" y="0"/>
+            </Size>
+            <Scripts>
+<!--              <OnMouseWheel>-->
+<!--                BUFFOMAT_ADDON.ScrollMessage(self,delta)-->
+<!--              </OnMouseWheel>-->
+<!--              <OnHyperlinkEnter>-->
+<!--                BUFFOMAT_ADDON.EnterHyperlink(self,link)-->
+<!--              </OnHyperlinkEnter>-->
+<!--              <OnHyperlinkLeave>-->
+<!--                BUFFOMAT_ADDON.LeaveHyperlink(self)-->
+<!--              </OnHyperlinkLeave>-->
+<!--              <OnHyperlinkClick>-->
+<!--                BUFFOMAT_ADDON.ClickHyperlink(self,link)-->
+<!--              </OnHyperlinkClick>-->
+            </Scripts>
+
+          </ScrollingMessageFrame>
+        </Frames>
+      </Frame>
+
+      <!--
+       SpellTab
+       Contains filtered abilities for the current class with settings checkboxes
+       -->
+      <Frame name="BM2_SPELL_TAB" hidden="false">
+        <Anchors>
+          <Anchor point="TOPLEFT">
+            <Offset>
+              <AbsDimension x="8" y="-30"/>
+            </Offset>
+          </Anchor>
+          <Anchor point="BOTTOMRIGHT">
+            <Offset>
+              <AbsDimension x="-8" y="8"/>
+            </Offset>
+          </Anchor>
+        </Anchors>
+        <Frames>
+
+          <ScrollFrame name="$parent_Scroll"
+                       inherits="UIPanelScrollFrameTemplate">
+            <Anchors>
+              <Anchor point="TOPLEFT">
+                <Offset>
+                  <AbsDimension y="-2" x="2"/>
+                </Offset>
+              </Anchor>
+              <Anchor point="BOTTOMRIGHT">
+                <Offset>
+                  <AbsDimension y="2" x="-22"/>
+                </Offset>
+              </Anchor>
+            </Anchors>
+            <Size>
+              <AbsDimension x="270" y="100"/>
+            </Size>
+            <ScrollChild>
+              <Frame name="$parent_Child">
+                <Size>
+                  <AbsDimension x="30" y="30"/>
+                </Size>
+              </Frame>
+            </ScrollChild>
+          </ScrollFrame>
+        </Frames>
+      </Frame>
+    </Frames>
+
+    <Scripts>
+      <OnLoad inherit="prepend">
+        self:SetBackdrop({
+          bgFile="Interface\\DialogFrame\\UI-DialogBox-Background-Dark",
+          edgeFile="Interface\\DialogFrame\\UI-DialogBox-Border",
+          tile=true,
+          edgeSize=16, tileSize=64,
+          insets={left=5, right=5, top=5, bottom=5}
+        });
+      </OnLoad>
+    </Scripts>
+  </Frame>
 </Ui>

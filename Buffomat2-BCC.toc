@@ -13,13 +13,15 @@
 ## SavedVariables: Bm2Conf
 ## SavedVariablesPerCharacter: Bm2CharacterConf
 
+# Module before all
 Src/Module.lua
+# Tooltip before XMLs they are using it
+Src/Tooltip.lua
 
 Xml/embeds.xml
 Xml/Buffomat2.xml
 
 Src/Addon.lua
-Src/Tooltip.lua
 Src/Translation.lua
 Src/Events.lua
 Src/Slash.lua

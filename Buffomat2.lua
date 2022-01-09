@@ -9,10 +9,15 @@ local options = Bm2Module.Import("Options")
 local events = Bm2Module.Import("Events");
 ---@type Bm2SlashModule
 local slash = Bm2Module.Import("Slash");
+---@type Bm2TranslationModule
+local translation = Bm2Module.Import("Translation")
+local function _t(key)
+  return translation(key)
+end
 
 local function bm2MakeOptions()
   return  {
-    name = "Buffomat2",
+    name = "Buffomat 2 Settings",
     --handler = Questie,
     type = "group",
     childGroups = "tab",
@@ -34,6 +39,9 @@ function bm2:OnInitializeStep2()
 
   local configDialog = LibStub("AceConfigDialog-3.0")
   configDialog:AddToBlizOptions("Buffomat2", "Buffomat 2");
+
+  -- Set up the main window
+  BM2_MAIN_WINDOW_TITLE:SetText(_t('Buffomat') .. " - " .. _t('Solo'))
 end
 
 function bm2:HandleSlash(input)
