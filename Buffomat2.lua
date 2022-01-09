@@ -47,16 +47,7 @@ function bm2:OnInitializeStep2()
   local configDialog = LibStub("AceConfigDialog-3.0")
   configDialog:AddToBlizOptions("Buffomat2", "Buffomat 2");
 
-  ---------------------------
-  -- Set up the main window
-  ---------------------------
-  BM2_MAIN_WINDOW_TITLE:SetText(_t('Buffomat') .. " - " .. _t('Solo'))
-  bm2ui.EnableMoving(BM2_MAIN_WINDOW, bm2ui.SaveWindowPosition)
-  BM2_MAIN_WINDOW:SetMinResize(180, 90)
-
-  bm2ui.AddTab(BM2_MAIN_WINDOW, _t('Tasks'), BM2_LIST_TAB, true)
-  bm2ui.AddTab(BM2_MAIN_WINDOW, _t('Spells'), BM2_SPELL_TAB, true)
-  bm2ui.SelectTab(BM2_MAIN_WINDOW, 1)
+  bm2ui.SetupMainWindow()
 end
 
 function bm2:HandleSlash(input)

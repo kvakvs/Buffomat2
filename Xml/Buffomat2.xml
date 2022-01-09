@@ -80,7 +80,7 @@
   </Frame>
 
   <Frame name="BM2_MAIN_WINDOW" parent="UIParent" hidden="false"
-         enableMouse="true" frameStrata="MEDIUM" clampedToScreen="true"
+         enableMouse="true" frameStrata="HIGH" clampedToScreen="true"
          inherits="BM2_TEMPLATE_BACKDROP">
     <Size>
       <AbsDimension x="256" y="170"/>
