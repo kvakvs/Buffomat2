@@ -10,8 +10,8 @@
 ## DefaultState: Enabled
 ## LoadOnDemand: 0
 
-## SavedVariablesPerCharacter: Bm2CharacterConf
 ## SavedVariables: Bm2Conf
+## SavedVariablesPerCharacter: Bm2CharacterConf
 
 Src/Module.lua
 
@@ -21,6 +21,8 @@ Xml/Buffomat2.xml
 Src/Addon.lua
 Src/Tooltip.lua
 Src/Translation.lua
+Src/Events.lua
+Src/Slash.lua
 Src/Options/Options.lua
 
 Buffomat2.lua

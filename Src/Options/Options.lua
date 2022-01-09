@@ -2,28 +2,68 @@
 local options = Bm2Module.DeclareModule("Options")
 
 ---@type Bm2TranslationModule
-local _t = Bm2Module:Import("Translation")
+local translation = Bm2Module.Import("Translation")
+local function _t(key)
+  return function()
+    return translation(key)
+  end
+end
 
 function options:MakeGeneralTab()
   return {
-    name = function() return _t('General'); end,
-    type = "group",
+    name  = _t('General'),
+    type  = "group",
     order = 10,
-    args = {
-      bm2_header = {
-        type = "header",
-        order = 1,
-        name = function() return _t('General Options'); end,
-      },
-      enabled = {
-        type = "toggle",
-        order = 1.1,
-        name = function() return _t('Enable Icons'); end,
-        desc = function() return _t('Enable or disable icons.'); end,
-        width = 1.5,
-        get = function () return false; end,
-        set = function (info, value) end,
-      },
+    args  = {
+      --header_general = {
+      --  type  = "header",
+      --  order = 1,
+      --  name  = _t('General Options'),
+      --},
+      activateWhen   = {
+        type   = "group",
+        order  = 2,
+        inline = true,
+        name   = _t('Activate when...'),
+        args   = {
+          autoShow        = {
+            type  = "toggle",
+            order = 1,
+            name  = _t('When there\'s work to do'),
+            desc  = _t('Pop Buffomat window when task list is not empty.'),
+            width = 1.5,
+            get   = function()
+              return Bm2Addon.db.char.autoShow;
+            end,
+            set   = function(info, value)
+              Bm2Addon.db.char.autoShow = value;
+            end,
+          },
+          scanInRestAreas = {
+            type  = "toggle",
+            order = 2,
+            name  = _t('Scan buffs in rest areas'),
+            desc  = _t('Allow buffing with Buffomat in cities and inns.'),
+            width = 1.5,
+            get   = function()
+              return Bm2Addon.db.char.scanInRestAreas;
+            end,
+            set   = function(info, value)
+              Bm2Addon.db.char.scanInRestAreas = value;
+            end,
+          },
+        },
+      }
     }
+  }
+end
+
+function options:GetDefaults()
+  return {
+    global = {},
+    char   = {
+      autoShow        = true,
+      scanInRestAreas = true,
+    },
   }
 end

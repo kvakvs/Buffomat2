@@ -1,10 +1,14 @@
 ---@type Bm2Addon
-Bm2Addon = LibStub("AceAddon-3.0"):NewAddon("Buffomat2", "AceConsole-3.0")
--- "AceEvent-3.0", "AceTimer-3.0", "AceBucket-3.0"
+Bm2Addon = LibStub("AceAddon-3.0"):NewAddon("Buffomat2", "AceConsole-3.0", "AceEvent-3.0")
+
 local bm2 = Bm2Addon ---@type Bm2Addon
 
 ---@type Bm2OptionsModule
 local options = Bm2Module.Import("Options")
+---@type Bm2EventsModule
+local events = Bm2Module.Import("Events");
+---@type Bm2SlashModule
+local slash = Bm2Module.Import("Slash");
 
 local function bm2MakeOptions()
   return  {
@@ -19,7 +23,21 @@ local function bm2MakeOptions()
 end
 
 function bm2:OnInitialize()
-  LibStub("AceConfig-3.0"):RegisterOptionsTable("Buffomat2", bm2MakeOptions, { "/bm", })
+  bm2.db = LibStub("AceDB-3.0"):New("Bm2Conf", options:GetDefaults(), true)
+  events:RegisterEarlyEvents()
+end
+
+function bm2:OnInitializeStep2()
+  bm2:RegisterChatCommand("bm2", "HandleSlash")
+
+  LibStub("AceConfig-3.0"):RegisterOptionsTable("Buffomat2", bm2MakeOptions())
+
+  local configDialog = LibStub("AceConfigDialog-3.0")
+  configDialog:AddToBlizOptions("Buffomat2", "Buffomat 2");
+end
+
+function bm2:HandleSlash(input)
+  slash:HandleSlash(input)
 end
 
 function bm2:OnEnable()
