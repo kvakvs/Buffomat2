@@ -1,11 +1,9 @@
 ---@class Bm2Addon
----@field forceUpdate string|nil Modified when something happens that we must recalculate the task list. Value is reason for recalculation
 ---@field playerIsMoving boolean Modified on start_move/stop_move events
 ---@field playerIsCasting string|nil String "cast" or "channel" when player is casting or channeling
+---@field playerIsInCombat boolean
 ---@field lastTarget string|nil Modified when player target changes
----@field playerBuffs table<string, table> Remaining durations on buffs on the player
 Bm2Addon = LibStub("AceAddon-3.0"):NewAddon("Buffomat2", "AceConsole-3.0", "AceEvent-3.0")
-Bm2Addon.playerBuffs = {}
 
 local bm2 = Bm2Addon ---@type Bm2Addon
 
@@ -18,10 +16,7 @@ local slash = Bm2Module.Import("Slash");
 ---@type Bm2UiModule
 local bm2ui = Bm2Module.Import("Ui");
 ---@type Bm2TranslationModule
-local translation = Bm2Module.Import("Translation")
-local function _t(key)
-  return translation(key)
-end
+local _t = Bm2Module.Import("Translation")
 
 local function bm2MakeOptions()
   return  {
@@ -71,12 +66,4 @@ function bm2:OnDisable()
   -- Unhook, Unregister Events, Hide frames that you created.
   -- You would probably only use an OnDisable if you want to
   -- build a "standby" mode, or be able to toggle modules on/off.
-end
-
-function bm2:UpdateSpellsTab(reason)
-end
-
----@param reason string|nil
-function bm2:RequestForceUpdate(reason)
-  bm2.forceUpdate = reason
 end

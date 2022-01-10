@@ -39,3 +39,6 @@ bm2const.ShapeShiftTravel = {
   2645,
   783
 } --Ghost wolf and travel druid
+
+-- Time to wait after loading screen to begin scanning the buffs
+bm2const.LOADING_SCREEN_TIMEOUT = 2

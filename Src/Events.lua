@@ -2,6 +2,28 @@
 local bm2events = Bm2Module.DeclareModule("Events")
 ---@type Bm2ConstModule
 local bm2const = Bm2Module.Import("Const")
+---@type Bm2UiMainWindowModule
+local uiMainWindow = Bm2Module.Import("UiMainWindow")
+---@type Bm2EngineModule
+local engine = Bm2Module.Import("Engine")
+---@type Bm2BagModule
+local bm2bag = Bm2Module.Import("Bag")
+
+local EVT_COMBAT_STOP = { "PLAYER_REGEN_ENABLED" }
+local EVT_COMBAT_START = { "PLAYER_REGEN_DISABLED" }
+local EVT_LOADING_SCREEN_START = { "LOADING_SCREEN_ENABLED", "PLAYER_LEAVING_WORLD" }
+local EVT_LOADING_SCREEN_END = { "PLAYER_ENTERING_WORLD", "LOADING_SCREEN_DISABLED" }
+local EVT_UPDATE = {
+  "UPDATE_SHAPESHIFT_FORM", "UNIT_AURA", "READY_CHECK",
+  "PLAYER_ALIVE", "PLAYER_UNGHOST", "INCOMING_RESURRECT_CHANGED",
+  "UNIT_INVENTORY_CHANGED" }
+
+local EVT_BAG_CHANGED = { "BAG_UPDATE_DELAYED", "TRADE_CLOSED" }
+
+local EVT_PARTY_CHANGED = { "GROUP_JOINED", "GROUP_ROSTER_UPDATE",
+                            "RAID_ROSTER_UPDATE", "GROUP_LEFT" }
+
+local EVT_SPELLBOOK_CHANGED = { "SPELLS_CHANGED", "LEARNED_SPELL_IN_TAB" }
 
 ---Event_TAXIMAP_OPENED
 ---Ignores options: autoLeaveShapeshift, autoDismountGround, autoDismountFlying
@@ -24,7 +46,7 @@ local function bm2event_UNIT_POWER_UPDATE(_eventName, unitTarget, powerType)
     local actual_mana = UnitPower("player", bm2const.POWER_MANA) or 0
 
     if max_mana <= actual_mana then
-      Bm2Addon:RequestForceUpdate("power change")
+      engine:SetForceUpdate("power change")
     end
   end
 end
@@ -35,11 +57,11 @@ local function bm2event_PLAYER_TARGET_CHANGED()
   if not InCombatLockdown() then
     if UnitInParty("target") or UnitInRaid("target") or UnitIsUnit("target", "player") then
       Bm2Addon.lastTarget = UnitFullName("target")
-      Bm2Addon:UpdateSpellsTab("player target changed")
+      engine:UpdateSpellsTab("player target changed")
 
     elseif Bm2Addon.lastTarget then
       Bm2Addon.lastTarget = nil
-      Bm2Addon:UpdateSpellsTab("player target cleared")
+      engine:UpdateSpellsTab("player target cleared")
     end
   else
     Bm2Addon.lastTarget = nil
@@ -59,10 +81,10 @@ local function bm2event_COMBAT_LOG_EVENT_UNFILTERED()
 
   if bit.band(destFlags, bm2PartyCheckMask) > 0 and destName ~= nil and destName ~= "" then
     if event == "UNIT_DIED" then
-      Bm2Addon:RequestForceUpdate("unit died")
+      engine:SetForceUpdate("unit died")
 
     elseif Bm2Addon.db.char.durationCache[spellName] then
-      local bm2PlayerBuffs = Bm2Addon.playerBuffs
+      local bm2PlayerBuffs = engine.playerBuffs
 
       if bit.band(sourceFlags, COMBATLOG_OBJECT_AFFILIATION_MINE) > 0 then
         if event == "SPELL_CAST_SUCCESS" then
@@ -136,36 +158,97 @@ end
 local function bm2event_UNIT_SPELLCAST_START(_eventName, unit)
   if UnitIsUnit(unit, "player") and not Bm2Addon.playerIsCasting then
     Bm2Addon.playerIsCasting = "cast"
-    Bm2Addon:RequestForceUpdate("player is casting")
+    engine:SetForceUpdate("player is casting")
   end
 end
 
 local function bm2event_UNIT_SPELLCAST_STOP(_eventName, unit)
   if UnitIsUnit(unit, "player") and Bm2Addon.playerIsCasting then
     Bm2Addon.playerIsCasting = nil
-    Bm2Addon:RequestForceUpdate("casting stop")
+    engine:SetForceUpdate("casting stop")
   end
 end
 
 local function bm2event_UNIT_SPELLCHANNEL_START(_eventName, unit)
   if UnitIsUnit(unit, "player") and not Bm2Addon.playerIsCasting then
     Bm2Addon.playerIsCasting = "channel"
-    Bm2Addon:RequestForceUpdate("player is channeling")
+    engine:SetForceUpdate("player is channeling")
   end
 end
 
 local function bm2event_UNIT_SPELLCHANNEL_STOP(_eventName, unit)
   if UnitIsUnit(unit, "player") and Bm2Addon.playerIsCasting then
     Bm2Addon.playerIsCasting = nil
-    Bm2Addon.RequestForceUpdate("channeling stop")
+    engine:SetForceUpdate("channeling stop")
   end
 end
 
 local function bm2event_UNIT_SPELLCAST_errors(_eventName, unit)
   if UnitIsUnit(unit, "player") then
-    Bm2Addon:RequestForceUpdate("cast end")
+    engine:SetForceUpdate("cast end")
     --Bm2Addon.playerIsCasting = nil
   end
+end
+
+---On combat start will close the UI window and disable the UI. Will cancel the cancelable buffs.
+local function bm2event_CombatStart()
+  engine:SetForceUpdate("combat start")
+  uiMainWindow.AutoClose()
+
+  if not InCombatLockdown() then
+    BM2_MAIN_WINDOW_CAST_BUTTON:Disable()
+  end
+
+  engine:CancelBuffs()
+end
+
+local function bm2event_CombatStop()
+  engine:ClearSkipList()
+  engine:SetForceUpdate("combat stop")
+  uiMainWindow.AllowAutoOpen()
+end
+
+local function bm2event_LoadingStart()
+  engine.loadingScreen = true
+  engine.loadingScreenTimeout = nil
+  bm2event_CombatStart()
+end
+
+local function bm2event_LoadingStop()
+  engine.loadingScreenTimeOut = GetTime() + bm2const.LOADING_SCREEN_TIMEOUT
+  engine:SetForceUpdate("loading screen end")
+end
+
+local function bm2event_SpellsChanged()
+  engine:SetupAvailableSpells()
+  engine:SetForceUpdate("spells changed")
+  uiMainWindow.spellTabsCreatedFlag = false
+  -- engine:OptionsInsertSpells() -- update options page with all known spells?
+end
+
+local bm2SavedInParty = IsInRaid() or IsInGroup()
+
+local function bm2event_PartyChanged()
+  engine.partyUpdateNeeded = true
+  engine:SetForceUpdate("party changed")
+
+  -- if in_party changed from true to false, clear the watch groups
+  local in_party = IsInRaid() or IsInGroup()
+  if bm2SavedInParty ~= in_party then
+    if not in_party then
+      BOM.MaybeResetWatchGroups()
+    end
+    bm2SavedInParty = in_party
+  end
+end
+
+local function bm2event_GenericUpdate(eventType)
+  engine:SetForceUpdate(eventType)
+end
+
+local function bm2event_Bag()
+  engine:SetForceUpdate()
+  bm2bag:Invalidate()
 end
 
 function bm2events.RegisterEarlyEvents()
@@ -177,10 +260,10 @@ end
 function bm2events.RegisterLateEvents()
   -- Events which might change active state of Buffomat
   Bm2Addon:RegisterEvent("ZONE_CHANGED", function()
-    Bm2Addon:RequestForceUpdate("zone changed")
+    engine:SetForceUpdate("zone changed")
   end)
   Bm2Addon:RegisterEvent("PLAYER_UPDATE_RESTING", function()
-    Bm2Addon:RequestForceUpdate("resting status changed")
+    engine:SetForceUpdate("resting status changed")
   end)
 
   --- Events possibly leading to a Buffomat action (dismount, target change, mana
@@ -206,4 +289,30 @@ function bm2events.RegisterLateEvents()
   Bm2Addon:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED", bm2event_UNIT_SPELLCAST_errors)
   Bm2Addon:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED", bm2event_UNIT_SPELLCAST_errors)
   Bm2Addon:RegisterEvent("UNIT_SPELLCAST_FAILED", bm2event_UNIT_SPELLCAST_errors)
+
+  for i, event in ipairs(EVT_COMBAT_START) do
+    Bm2Addon:RegisterEvent(event, bm2event_CombatStart)
+  end
+  for i, event in ipairs(EVT_COMBAT_STOP) do
+    Bm2Addon:RegisterEvent(event, bm2event_CombatStop)
+  end
+  for i, event in ipairs(EVT_LOADING_SCREEN_START) do
+    Bm2Addon:RegisterEvent(event, bm2event_LoadingStart)
+  end
+  for i, event in ipairs(EVT_LOADING_SCREEN_END) do
+    Bm2Addon:RegisterEvent(event, bm2event_LoadingStop)
+  end
+
+  for i, event in ipairs(EVT_SPELLBOOK_CHANGED) do
+    Bm2Addon:RegisterEvent(event, bm2event_SpellsChanged)
+  end
+  for i, event in ipairs(EVT_PARTY_CHANGED) do
+    Bm2Addon:RegisterEvent(event, bm2event_PartyChanged)
+  end
+  for i, event in ipairs(EVT_UPDATE) do
+    Bm2Addon:RegisterEvent(event, bm2event_GenericUpdate)
+  end
+  for i, event in ipairs(EVT_BAG_CHANGED) do
+    Bm2Addon:RegisterEvent(event, bm2event_Bag)
+  end
 end

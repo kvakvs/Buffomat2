@@ -18,12 +18,15 @@ Src/Module.lua
 Src/Const.lua
 # Tooltip and UI: load them before XMLs - they are using it
 Src/Ui.lua
+Src/UiMainWindow.lua
 Src/Tooltip.lua
 
 Xml/embeds.xml
 Xml/Buffomat2.xml
 
 Src/Translation.lua
+Src/Engine.lua
+Src/Bag.lua
 Src/Events.lua
 Src/Slash.lua
 Src/Options/Options.lua

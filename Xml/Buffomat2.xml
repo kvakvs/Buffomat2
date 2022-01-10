@@ -129,8 +129,8 @@
           </Anchor>
         </Anchors>
         <Scripts>
-<!--          <OnClick>BUFFOMAT_ADDON.BtnClose()</OnClick>-->
-          <OnLoad>Bm2Module.Import("Tooltip"):Set(self, "TooltipCloseButton");</OnLoad>
+          <OnClick>Bm2Addon.OnCloseClick()</OnClick>
+          <OnLoad>Bm2Module.Import("Tooltip"):Set(self, "Hide Buffomat window");</OnLoad>
         </Scripts>
       </Button>
 
@@ -147,8 +147,8 @@
                   relativePoint="LEFT"/>
         </Anchors>
         <Scripts>
-<!--          <OnMouseDown>BUFFOMAT_ADDON.BtnSettings(self)</OnMouseDown>-->
-          <OnLoad>Bm2Module.Import("Tooltip"):Set(self, "TooltipSettingsButton");</OnLoad>
+          <OnMouseDown>Bm2Addon.OnSettingsClick()</OnMouseDown>
+          <OnLoad>Bm2Module.Import("Tooltip"):Set(self, "Show Buffomat settings window");</OnLoad>
         </Scripts>
       </Button>
 
@@ -166,7 +166,9 @@
         </Anchors>
         <Scripts>
 <!--          <OnMouseDown>BUFFOMAT_ADDON.BtnMacro()</OnMouseDown>-->
-          <OnLoad>Bm2Module.Import("Tooltip"):Set(self, "TooltipMacroButton");</OnLoad>
+          <OnLoad>Bm2Module.Import("Tooltip"):Set(self,
+            "Drag this macro to your action bar, or don't drag but instead bind a key to it in Keybinds options")
+          </OnLoad>
         </Scripts>
       </Button>
 
