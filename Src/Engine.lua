@@ -43,9 +43,3 @@ function engine:ClearSkipList()
     end
   end
 end
-
----From spells known to Buffomat and spells known to the player, build a list of
----spells which we actually have available.
-function engine:SetupAvailableSpells()
-  Bm2Addon:Print("Setup avail spells")
-end

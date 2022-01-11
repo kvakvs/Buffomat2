@@ -6,6 +6,8 @@ local bm2const = Bm2Module.Import("Const")
 local uiMainWindow = Bm2Module.Import("UiMainWindow")
 ---@type Bm2EngineModule
 local engine = Bm2Module.Import("Engine")
+---@type Bm2SpellsDbModule
+local spellsDb = Bm2Module.Import("SpellsDb")
 ---@type Bm2BagModule
 local bm2bag = Bm2Module.Import("Bag")
 
@@ -220,7 +222,7 @@ local function bm2event_LoadingStop()
 end
 
 local function bm2event_SpellsChanged()
-  engine:SetupAvailableSpells()
+  spellsDb:SetupAvailableSpells()
   engine:SetForceUpdate("spells changed")
   uiMainWindow.spellTabsCreatedFlag = false
   -- engine:OptionsInsertSpells() -- update options page with all known spells?

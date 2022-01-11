@@ -167,7 +167,7 @@
         <Scripts>
 <!--          <OnMouseDown>BUFFOMAT_ADDON.BtnMacro()</OnMouseDown>-->
           <OnLoad>Bm2Module.Import("Tooltip"):Set(self,
-            "Drag this macro to your action bar, or don't drag but instead bind a key to it in Keybinds options")
+            "Drag this macro to your action bar\nOr bind a key to it in Keybinds options")
           </OnLoad>
         </Scripts>
       </Button>

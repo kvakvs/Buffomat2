@@ -26,6 +26,11 @@ Xml/Buffomat2.xml
 
 Src/Translation.lua
 Src/Engine.lua
+Src/SpellDef.lua
+Src/ItemDef.lua
+Src/BuffDef.lua
+Src/SpellsDb/Priest.lua
+Src/SpellsDb.lua
 Src/Bag.lua
 Src/Events.lua
 Src/Slash.lua

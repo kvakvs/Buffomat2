@@ -6,6 +6,8 @@ local uiMainWindow = Bm2Module.DeclareModule("UiMainWindow")
 local engine = Bm2Module.Import("Engine")
 ---@type Bm2TranslationModule
 local _t = Bm2Module.Import("Translation")
+---@type Bm2ConstModule
+local bm2const = Bm2Module.Import("Const")
 
 local BM2INTENT_AUTO_CLOSED = "autoClosed"
 local BM2INTENT_AUTO_OPEN = "autoOpen"
@@ -130,13 +132,4 @@ function uiMainWindow.AllowAutoOpen()
       uiMainWindow.windowHideBehaviour = BM2INTENT_AUTO_CLOSED
     end
   end
-end
-
----Close ❌ button was clicked in the main window. Hide it.
-function Bm2Addon.OnCloseClick()
-  uiMainWindow.HideWindow("user close")
-end
-
----Settings ⚙ button was clicked
-function Bm2Addon.OnSettingsClick()
 end

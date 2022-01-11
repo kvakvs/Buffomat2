@@ -42,3 +42,10 @@ bm2const.ShapeShiftTravel = {
 
 -- Time to wait after loading screen to begin scanning the buffs
 bm2const.LOADING_SCREEN_TIMEOUT = 2
+
+bm2const.DURATION_1H = 3600
+bm2const.DURATION_30M = 1800
+bm2const.DURATION_20M = 1200
+bm2const.DURATION_15M = 900
+bm2const.DURATION_10M = 600
+bm2const.DURATION_5M = 300

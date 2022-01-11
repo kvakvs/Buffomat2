@@ -67,3 +67,12 @@ function bm2:OnDisable()
   -- You would probably only use an OnDisable if you want to
   -- build a "standby" mode, or be able to toggle modules on/off.
 end
+
+---Close ❌ button was clicked in the main window. Hide it.
+function bm2:OnCloseClick()
+  uiMainWindow.HideWindow("user close")
+end
+
+---Settings ⚙ button was clicked
+function bm2:OnSettingsClick()
+end
