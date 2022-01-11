@@ -35,10 +35,14 @@ bm2const.ErrorsWhenShapeshifted = {
   SPELL_FAILED_NOT_SHAPESHIFT, SPELL_NOT_SHAPESHIFTED,
   SPELL_NOT_SHAPESHIFTED_NOSPACE }
 
+--- Note: Canceling shapeshift forms is currently impossible in TBC
 bm2const.ShapeShiftTravel = {
-  2645,
-  783
-} --Ghost wolf and travel druid
+  2645, -- ghost wolf
+  783, -- travelform
+  768, -- catform
+  5487, -- junior bear form
+  9634, -- dire bear form
+}
 
 -- Time to wait after loading screen to begin scanning the buffs
 bm2const.LOADING_SCREEN_TIMEOUT = 2

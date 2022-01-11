@@ -1,5 +1,7 @@
 ---@class Bm2BuffDefModule
 local buffDefModule = Bm2Module.DeclareModule("BuffDef")
+---@type Bm2EngineModule
+local engine = Bm2Module.Import("Engine")
 
 ---@class Bm2BuffDefinition
 ---@field buffId string
@@ -127,4 +129,20 @@ function classBuffDef:IsAvailable()
       return true
     end
   end
+
+  return false
+end
+
+---Cancels all possible auras of this buff on player
+function classBuffDef:Cancel()
+  local spellIds = {}
+
+  for _index, spell in ipairs(self.singleBuff) do
+    tinsert(spellIds, spell.id)
+  end
+  for _index, spell in ipairs(self.groupBuff) do
+    tinsert(spellIds, spell.id)
+  end
+
+  engine:CancelBuff(spellIds)
 end

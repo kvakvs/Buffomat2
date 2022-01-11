@@ -65,7 +65,7 @@ function bm2ui.SetupMainWindow()
 end
 
 ---Close window and set close reason to "user clicked close button"
-function uiMainWindow.HideWindow(reason)
+function uiMainWindow:HideWindow(reason)
   if BM2_MAIN_WINDOW:IsVisible() then
     BM2_MAIN_WINDOW:Hide()
     uiMainWindow.windowHideBehaviour = BM2INTENT_KEEP_CLOSED
@@ -74,7 +74,7 @@ function uiMainWindow.HideWindow(reason)
 end
 
 --- Show the addon window; Save user intent to keep the window open
-function uiMainWindow.ShowWindow(tab)
+function uiMainWindow:ShowWindow(tab)
   if not InCombatLockdown() then
     if not BM2_MAIN_WINDOW:IsVisible() then
       BM2_MAIN_WINDOW:Show()
@@ -84,7 +84,7 @@ function uiMainWindow.ShowWindow(tab)
     end
     bm2ui.SelectTab(BM2_MAIN_WINDOW, tab or 1)
   else
-    Bm2Addon:Print(_t("Can\'t show window in combat"))
+    Bm2Addon:Print(_t("Can't show window in combat"))
   end
 end
 
@@ -92,10 +92,10 @@ function uiMainWindow.ToggleWindow()
   local reason = "toggle window"
 
   if BM2_MAIN_WINDOW:IsVisible() then
-    uiMainWindow.HideWindow(reason)
+    uiMainWindow:HideWindow(reason)
   else
     engine:ScanBuffs(reason)
-    uiMainWindow.ShowWindow()
+    uiMainWindow:ShowWindow()
   end
 end
 

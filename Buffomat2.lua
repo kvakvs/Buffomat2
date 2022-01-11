@@ -19,6 +19,8 @@ local bm2ui = Bm2Module.Import("Ui");
 local _t = Bm2Module.Import("Translation")
 ---@type Bm2SpellsDbModule
 local spellsDb = Bm2Module.Import("SpellsDb")
+---@type Bm2UiMainWindowModule
+local uiMainWindow = Bm2Module.Import("UiMainWindow")
 
 local function bm2MakeOptions()
   return  {
@@ -76,7 +78,7 @@ end
 
 ---Close ❌ button was clicked in the main window. Hide it.
 function bm2:OnCloseClick()
-  uiMainWindow.HideWindow("user close")
+  uiMainWindow:HideWindow("user close")
 end
 
 ---Settings ⚙ button was clicked

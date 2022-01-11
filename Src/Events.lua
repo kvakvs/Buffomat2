@@ -36,7 +36,7 @@ local function bm2event_TAXIMAP_OPENED()
     Dismount()
   else
     DoEmote("STAND")
-    BOM.CancelShapeShift()
+    engine:CancelBuff(bm2const.ShapeShiftTravel)
   end
 end
 
@@ -134,7 +134,7 @@ local function bm2event_UI_ERROR_MESSAGE(_errorType, message)
 
   elseif Bm2Addon.db.char.autoLeaveShapeshift
       and tContains(bm2const.ErrorsWhenShapeshifted, message)
-      and bm2CancelBuff(bm2const.ShapeShiftTravel) then
+      and engine:CancelBuff(bm2const.ShapeShiftTravel) then
     UIErrorsFrame:Clear()
 
   --elseif not InCombatLockdown() then
@@ -191,7 +191,7 @@ local function bm2event_CombatStart()
   uiMainWindow.AutoClose()
 
   if not InCombatLockdown() then
-    BM2_MAIN_WINDOW_CAST_BUTTON:Disable()
+    BM2_TASKS_TAB_CAST_BUTTON:Disable()
   end
 
   engine:CancelBuffs()

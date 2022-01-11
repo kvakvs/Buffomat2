@@ -285,6 +285,7 @@ function options:GetDefaults()
     char   = {
       -- TODO: durationCache has names populated from the known spells when updating spells
       durationCache       = {}, -- [spellname] => GetTime(), for spells known to Buffomat
+      cancelBuffs         = {}, -- list(buffId) buff names selected by the user to cancel
 
       mainWindowX         = 0,
       mainWindowY         = 0,

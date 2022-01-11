@@ -193,7 +193,7 @@
 
         <Frames>
           <!--
-          Cast Button
+          Cast Button: BM2_TASKS_TAB_CAST_BUTTON
           Runs the task from the task list and casts the spell
           -->
           <Button name="$parent_CAST_BUTTON" inherits="BM2_TEMPLATE_SECURE_BUTTON">
