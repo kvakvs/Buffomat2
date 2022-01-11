@@ -154,7 +154,6 @@ function spellsDb:FilterAvailableSpells()
 
   for _index, buff in pairs(spellsDb.allPossibleBuffs) do
     if buff:IsAvailable() then
-      Bm2Addon:Print("buff available: " .. buff.buffId)
       spellsDb.availableBuffs[buff.buffId] = buff
 
       for _, spell in ipairs(buff.singleBuff) do

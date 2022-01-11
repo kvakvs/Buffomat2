@@ -113,7 +113,8 @@ end
 ---@return boolean
 function classBuffDef:IsAvailable()
   -- Item buffs are always available, who knows when the user will have the item
-  if self.buffType == BUFFTYPE_ITEM_USE or self.buffType == BUFFTYPE_ITEM_TARGET_USE then
+  if self.buffType == buffDefModule.BUFFTYPE_ITEM_USE
+      or self.buffType == buffDefModule.BUFFTYPE_ITEM_TARGET_USE then
     return true
   end
 
