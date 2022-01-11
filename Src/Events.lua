@@ -222,7 +222,7 @@ local function bm2event_LoadingStop()
 end
 
 local function bm2event_SpellsChanged()
-  spellsDb:SetupAvailableSpells()
+  spellsDb:FilterAvailableSpells()
   engine:SetForceUpdate("spells changed")
   uiMainWindow.spellTabsCreatedFlag = false
   -- engine:OptionsInsertSpells() -- update options page with all known spells?

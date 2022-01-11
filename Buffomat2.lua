@@ -17,6 +17,8 @@ local slash = Bm2Module.Import("Slash");
 local bm2ui = Bm2Module.Import("Ui");
 ---@type Bm2TranslationModule
 local _t = Bm2Module.Import("Translation")
+---@type Bm2SpellsDbModule
+local spellsDb = Bm2Module.Import("SpellsDb")
 
 local function bm2MakeOptions()
   return  {
@@ -32,6 +34,7 @@ end
 
 function bm2:OnInitialize()
   bm2.db = LibStub("AceDB-3.0"):New("Bm2Conf", options:GetDefaults(), true)
+  spellsDb:InitSpellsDb()
   bm2events.RegisterEarlyEvents()
 end
 

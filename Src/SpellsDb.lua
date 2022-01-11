@@ -1,16 +1,21 @@
 ---Code to set up all known spells
 
----@class Bm2SpellsDbModule
----@field allPossibleBuffs table<string, Bm2BuffDefinition> All buff definitions, with string keys
----@field enchantIds table<number, string> Weapon enchantment id to buff id reverse lookup
-local spellsDb = Bm2Module.DeclareModule("SpellsDb")
 ---@type Bm2BuffDefModule
 local buffDef = Bm2Module.DeclareModule("BuffDef")
 ---@type Bm2SpellsDbPriestModule
 local priest = Bm2Module.Import("SpellsDb/Priest")
+---@type Bm2ConstModule
+local bm2const = Bm2Module.Import("Const")
+
+---@class Bm2SpellsDbModule
+---@field allPossibleBuffs table<string, Bm2BuffDefinition> All buff definitions, with string keys
+---@field cancelBuffs table<number, Bm2BuffDefinition> Buff definitions to show in cancel buff list
+---@field enchantIds table<number, string> Weapon enchantment id to buff id reverse lookup
+local spellsDb = Bm2Module.DeclareModule("SpellsDb")
 
 spellsDb.allPossibleBuffs = {}
-spellsDb.enchantIds = {} ---@type table<number, table<number>>
+spellsDb.enchantIds = {}
+spellsDb.cancelBuffs = {}
 
 ---@param buffId string Unique string key to the buff
 ---@return Bm2BuffDefinition
@@ -65,12 +70,38 @@ end
 local function bm2Food()
 end
 
----From spells known to Buffomat and spells known to the player, build a list of
----spells which we actually have available.
-function spellsDb:SetupAvailableSpells()
+local function bm2InitCancelBuffs()
+  local priestSpirit = spellsDb.allPossibleBuffs["buff_spirit"]
+  local priestShield = spellsDb.allPossibleBuffs["buff_shield"]
+  local mageIntellect = spellsDb.allPossibleBuffs["buff_arcane_intel"]
+
+  spellsDb.cancelBuffs = {
+    priestShield,
+    priestSpirit,
+    mageIntellect,
+  }
+
+  if bm2const.PlayerClass == "HUNTER" then
+    local singleRanks = {
+      spellDef:New("aspect_of_the_cheetah", 5118),
+      spellDef:New("aspect_of_the_pack", 13159),
+    }
+    local buffHunterRunSpeed = buffDef:New("cancelbuff_hunter_run")
+                                      :SelfOnly():SingleBuff(singleRanks)
+    tinsert(spellsDb.cancelBuffs, buffHunterRunSpeed)
+  end
+
+  if bm2const.PlayerFaction ~= "Horde" or bm2const.IsTBC then
+    tinsert(spellsDb.cancelBuffs, spellsDb.allPossibleBuffs["buff_salvation"])
+  end
+end
+
+---Build a table of spells known to Buffomat, for all classes
+function spellsDb:InitSpellsDb()
   wipe(spellsDb.allPossibleBuffs)
   wipe(spellsDb.enchantIds)
 
+  -- TODO: Call class spell init functions only if player class matches
   priest:Spells()
   bm2DruidSpells()
   bm2MageSpells()
@@ -104,4 +135,13 @@ function spellsDb:SetupAvailableSpells()
   --
   --BOM.AllBuffomatSpells = spells
   --BOM.EnchantList = enchants
+
+  bm2InitCancelBuffs()
+end
+
+---From spells known to Buffomat and spells known to the player, build a list of
+---spells which we actually have available to the player. This list might change
+---for example due to level up, visiting a trainer, etc.
+function spellsDb:FilterAvailableSpells()
+
 end

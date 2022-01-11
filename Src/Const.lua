@@ -59,3 +59,7 @@ bm2const.SHADOW_CLASSES = { "PRIEST", "WARLOCK" }
 bm2const.FIRE_CLASSES = { "MAGE", "WARLOCK", "SHAMAN", "HUNTER" }
 bm2const.FROST_CLASSES = { "MAGE", "SHAMAN" }
 bm2const.PHYSICAL_CLASSES = { "HUNTER", "ROGUE", "SHAMAN", "WARRIOR", "DRUID", "PALADIN" }
+
+local _, playerClass_, _ = UnitClass("player")
+bm2const.PlayerClass = playerClass_
+bm2const.PlayerFaction = UnitFactionGroup("player")
