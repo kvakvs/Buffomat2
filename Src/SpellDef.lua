@@ -10,14 +10,14 @@ local classSpellDef = {}
 classSpellDef.__index = classSpellDef
 
 ---@return Bm2SpellDefinition
----@param spellName string
+---@param name string
 ---@param spellId number
 ---@param isTBC boolean
-function spellDefModule:New(spellName, spellId, isTBC)
+function spellDefModule:New(name, spellId, isTBC)
   local fields = {}
   setmetatable(fields, classSpellDef)
 
-  fields.name = spellName
+  fields.name = name
   fields.id = spellId
   fields.isTBC = isTBC
 

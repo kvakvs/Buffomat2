@@ -6,10 +6,6 @@
 local spellsDb = Bm2Module.DeclareModule("SpellsDb")
 ---@type Bm2BuffDefModule
 local buffDef = Bm2Module.DeclareModule("BuffDef")
----@type Bm2SpellDefModule
-local spellDef = Bm2Module.Import("SpellDef")
----@type Bm2ItemDefModule
-local itemDef = Bm2Module.Import("ItemDef")
 ---@type Bm2SpellsDbPriestModule
 local priest = Bm2Module.Import("SpellsDb/Priest")
 
