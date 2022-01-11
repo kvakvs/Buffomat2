@@ -30,3 +30,8 @@ function classSpellDef:Reagent(item)
   self.reagent = item
   return self
 end
+
+---@return boolean
+function classSpellDef:IsAvailable()
+  return IsSpellKnown(self.id)
+end

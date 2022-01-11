@@ -78,38 +78,31 @@ local bm2PartyCheckMask = COMBATLOG_OBJECT_AFFILIATION_RAID + COMBATLOG_OBJECT_A
 
 local function bm2event_COMBAT_LOG_EVENT_UNFILTERED()
   local _timestamp, event, _hideCaster, _sourceGUID, _sourceName, sourceFlags, _sourceRaidFlags
-  , _destGUID, destName, destFlags, _destRaidFlags, _spellId, spellName, _spellSchool, _auraType
+  , _destGUID, target, destFlags, _destRaidFlags, spellId, spellName, _spellSchool, _auraType
   , _amount = CombatLogGetCurrentEventInfo()
 
-  if bit.band(destFlags, bm2PartyCheckMask) > 0 and destName ~= nil and destName ~= "" then
+  if bit.band(destFlags, bm2PartyCheckMask) > 0 and target ~= nil and target ~= "" then
     if event == "UNIT_DIED" then
       engine:SetForceUpdate("unit died")
 
-    elseif Bm2Addon.db.char.durationCache[spellName] then
-      local bm2PlayerBuffs = engine.playerBuffs
+    elseif spellsDb.availableSpellIds[spellId] then
+      -- If spell id is one of the spells available to us (i.e. we can refresh it)
 
-      if bit.band(sourceFlags, COMBATLOG_OBJECT_AFFILIATION_MINE) > 0 then
-        if event == "SPELL_CAST_SUCCESS" then
+      local buffId = spellsDb.buffReverseLookup[spellId].buffId
 
-        elseif event == "SPELL_AURA_REFRESH" then
-          bm2PlayerBuffs[destName] = bm2PlayerBuffs[destName] or {}
-          bm2PlayerBuffs[destName][spellName] = GetTime()
+      if event == "SPELL_AURA_REFRESH" then -- refreshed duration to max
+        engine.activeBuffs[target] = engine.activeBuffs[target] or {}
+        engine.activeBuffs[target][buffId] = GetTime()
 
-        elseif event == "SPELL_AURA_APPLIED" then
-          bm2PlayerBuffs[destName] = bm2PlayerBuffs[destName] or {}
-          if bm2PlayerBuffs[destName][spellName] == nil then
-            bm2PlayerBuffs[destName][spellName] = GetTime()
-          end
-
-        elseif event == "SPELL_AURA_REMOVED" then
-          if bm2PlayerBuffs[destName] and bm2PlayerBuffs[destName][spellName] then
-            bm2PlayerBuffs[destName][spellName] = nil
-          end
+      elseif event == "SPELL_AURA_APPLIED" then -- new aura applied
+        engine.activeBuffs[target] = engine.activeBuffs[target] or {}
+        if engine.activeBuffs[target][buffId] == nil then
+          engine.activeBuffs[target][buffId] = GetTime()
         end
 
-      elseif event == "SPELL_AURA_REFRESH" or event == "SPELL_AURA_APPLIED" and event == "SPELL_AURA_REMOVED" then
-        if bm2PlayerBuffs[destName] and bm2PlayerBuffs[destName][spellName] then
-          bm2PlayerBuffs[destName][spellName] = nil
+      elseif event == "SPELL_AURA_REMOVED" then -- aura is removed or expired
+        if engine.activeBuffs[target] and engine.activeBuffs[target][buffId] then
+          engine.activeBuffs[target][buffId] = nil
         end
       end
     end

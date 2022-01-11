@@ -2,10 +2,10 @@
 local buffDefModule = Bm2Module.DeclareModule("BuffDef")
 
 ---@class Bm2BuffDefinition
----@field id string
+---@field buffId string
 ---@field defaultOn boolean Set to true to have it enabled by default for new users
----@field singleBuff table<number>|Bm2SpellDefinition Spelldef or list of spellids for single buff, lowest rank first
----@field groupBuff table<number>|Bm2SpellDefinition Spelldef or list of spellids for group buff, lowest rank first
+---@field singleBuff table<number, Bm2SpellDefinition> Table of spelldefs for single buff, lowest rank first
+---@field groupBuff table<number, Bm2SpellDefinition> Table of spelldefs for group buff, lowest rank first
 ---@field singleDuration number|nil Seconds for single buff or nil (for permanent auras)
 ---@field groupDuration number|nil Seconds for group buff or nil (if not applicable)
 ---@field hasCooldown boolean True to only attempt to buff once, as it might go on cooldown after the first cast
@@ -15,15 +15,19 @@ local buffDefModule = Bm2Module.DeclareModule("BuffDef")
 local classBuffDef = {}
 classBuffDef.__index = classBuffDef
 
-buffDefModule.BUFFTYPE_RESURRECTION = "resurrection"
+buffDefModule.BUFFTYPE_RESURRECTION = "resurrection" -- someone is dead
+buffDefModule.BUFFTYPE_ITEM_USE = "item_use" -- right click an item
+buffDefModule.BUFFTYPE_ITEM_TARGET_USE = "item_target_use" -- target someone then right click
 
 ---@return Bm2BuffDefinition
 function buffDefModule:New(buffId)
-  local fields = {}
+  local fields = {} ---@type Bm2BuffDefinition
   setmetatable(fields, classBuffDef)
 
-  fields.id = buffId
+  fields.buffId = buffId
   fields.defaultOn = false
+  fields.singleBuff = {}
+  fields.groupBuff = {}
 
   return fields
 end
@@ -61,6 +65,9 @@ end
 ---@param ranks table<Bm2SpellDefinition>|Bm2SpellDefinition
 ---@return Bm2BuffDefinition
 function classBuffDef:SingleBuff(ranks)
+  if type(ranks) == "Bm2SpellDefinition" then
+    ranks = { ranks }
+  end
   self.singleBuff = ranks
   return self
 end
@@ -69,6 +76,9 @@ end
 ---@param ranks table<Bm2SpellDefinition>|Bm2SpellDefinition
 ---@return Bm2BuffDefinition
 function classBuffDef:GroupBuff(ranks)
+  if type(ranks) == "Bm2SpellDefinition" then
+    ranks = { ranks }
+  end
   self.groupBuff = ranks
   return self
 end
@@ -95,4 +105,26 @@ end
 function classBuffDef:TargetClasses(classes)
   self.targetClasses = classes
   return self
+end
+
+---Check whether the spell/buff is available to the player
+---@return boolean
+function classBuffDef:IsAvailable()
+  -- Item buffs are always available, who knows when the user will have the item
+  if self.buffType == BUFFTYPE_ITEM_USE or self.buffType == BUFFTYPE_ITEM_TARGET_USE then
+    return true
+  end
+
+  -- if any of single buff spells are available...
+  for _index, spell in ipairs(self.singleBuff) do
+    if spell:IsAvailable() then
+      return true
+    end
+  end
+  -- if any of group buff spells are available...
+  for _index, spell in ipairs(self.groupBuff) do
+    if spell:IsAvailable() then
+      return true
+    end
+  end
 end

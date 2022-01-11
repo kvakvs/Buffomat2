@@ -1,4 +1,12 @@
 ---Code to set up all known spells
+---@class Bm2SpellsDbModule
+---@field allPossibleBuffs table<string, Bm2BuffDefinition> All buff definitions, with string keys
+---@field availableBuffs table<string, Bm2BuffDefinition> Buff definitions which the player knows
+---@field cancelBuffs table<number, Bm2BuffDefinition> Buff definitions to show in cancel buff list
+---@field enchantIds table<number, string> Weapon enchantment id to buff id reverse lookup
+---@field availableSpellIds table<number, number> Ids of spells available to the player, for combat log filtering
+---@field buffReverseLookup table<number, Bm2BuffDefinition> Reverse lookup of buff by spellid
+local spellsDb = Bm2Module.DeclareModule("SpellsDb")
 
 ---@type Bm2BuffDefModule
 local buffDef = Bm2Module.DeclareModule("BuffDef")
@@ -7,15 +15,12 @@ local priest = Bm2Module.Import("SpellsDb/Priest")
 ---@type Bm2ConstModule
 local bm2const = Bm2Module.Import("Const")
 
----@class Bm2SpellsDbModule
----@field allPossibleBuffs table<string, Bm2BuffDefinition> All buff definitions, with string keys
----@field cancelBuffs table<number, Bm2BuffDefinition> Buff definitions to show in cancel buff list
----@field enchantIds table<number, string> Weapon enchantment id to buff id reverse lookup
-local spellsDb = Bm2Module.DeclareModule("SpellsDb")
-
 spellsDb.allPossibleBuffs = {}
+spellsDb.availableBuffs = {}
 spellsDb.enchantIds = {}
 spellsDb.cancelBuffs = {}
+spellsDb.availableSpellIds = {} -- for combat log filtering
+spellsDb.buffReverseLookup = {} -- for finding buff defs by spellid
 
 ---@param buffId string Unique string key to the buff
 ---@return Bm2BuffDefinition
@@ -143,5 +148,28 @@ end
 ---spells which we actually have available to the player. This list might change
 ---for example due to level up, visiting a trainer, etc.
 function spellsDb:FilterAvailableSpells()
+  wipe(spellsDb.availableBuffs)
+  wipe(spellsDb.availableSpellIds)
+  wipe(spellsDb.buffReverseLookup)
 
+  for _index, buff in pairs(spellsDb.allPossibleBuffs) do
+    if buff:IsAvailable() then
+      Bm2Addon:Print("buff available: " .. buff.buffId)
+      spellsDb.availableBuffs[buff.buffId] = buff
+
+      for _, spell in ipairs(buff.singleBuff) do
+        if spell:IsAvailable() then
+          spellsDb.availableSpellIds[spell.id] = true
+          spellsDb.buffReverseLookup[spell.id] = buff
+        end
+      end -- for single buffs
+
+      for _, spell in ipairs(buff.groupBuff) do
+        if spell:IsAvailable() then
+          spellsDb.availableSpellIds[spell.id] = true
+          spellsDb.buffReverseLookup[spell.id] = buff
+        end
+      end -- for group buffs
+    end -- if available
+  end
 end

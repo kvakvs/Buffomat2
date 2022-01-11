@@ -34,7 +34,7 @@ end
 
 function bm2:OnInitialize()
   bm2.db = LibStub("AceDB-3.0"):New("Bm2Conf", options:GetDefaults(), true)
-  spellsDb:InitSpellsDb()
+
   bm2events.RegisterEarlyEvents()
 end
 
@@ -50,6 +50,9 @@ function bm2:OnInitializeStep2()
 
   local configDialog = LibStub("AceConfigDialog-3.0")
   configDialog:AddToBlizOptions("Buffomat2", "Buffomat 2");
+
+  spellsDb:InitSpellsDb()
+  -- spellsDb:FilterAvailableSpells() -- no need to call here, it will be called on character enter world
 
   bm2ui.SetupMainWindow()
   bm2events.RegisterLateEvents()

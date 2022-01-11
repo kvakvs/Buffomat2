@@ -141,7 +141,7 @@ local function resurrection()
     spellDef:New("resurrection6_tbc", 25435, true),
   }
   spellsDb:AddBuff("buff_resurrection"):DefaultEnabled()
-          :Type(buffDef.BUFFTYPE_RESURRECTION):SingleBuff(singleRanks):CancelForm()
+    :Type(buffDef.BUFFTYPE_RESURRECTION):SingleBuff(singleRanks):CancelForm()
 end
 
 local function elunesGrace()
