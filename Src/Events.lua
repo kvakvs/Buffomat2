@@ -126,7 +126,7 @@ local function bm2event_UI_ERROR_MESSAGE(_errorType, message)
       flying = IsFlying() and not Bm2Addon.db.char.autoDismountFlying
     end
     if not flying then
-      if BOM.db.char.autoDismount then
+      if Bm2Addon.db.char.autoDismount then
         UIErrorsFrame:Clear()
         Dismount()
       end
@@ -231,7 +231,7 @@ local function bm2event_PartyChanged()
   local in_party = IsInRaid() or IsInGroup()
   if bm2SavedInParty ~= in_party then
     if not in_party then
-      BOM.MaybeResetWatchGroups()
+      engine:MaybeResetWatchGroups()
     end
     bm2SavedInParty = in_party
   end

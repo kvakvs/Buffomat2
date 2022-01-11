@@ -287,6 +287,8 @@ function options:GetDefaults()
       durationCache       = {}, -- [spellname] => GetTime(), for spells known to Buffomat
       cancelBuffs         = {}, -- list(buffId) buff names selected by the user to cancel
 
+      doNotScanGroup      = {}, -- [number] => true; raidgroups which user clicked to not scan.
+
       mainWindowX         = 0,
       mainWindowY         = 0,
       mainWindowWidth     = 180,

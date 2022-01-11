@@ -13,7 +13,9 @@ engine.activeBuffs = {}
 engine.selectedSpells = {}
 
 ---@type Bm2SpellsDbModule
-local spellsDb = Bm2Module.DeclareModule("SpellsDb")
+local spellsDb = Bm2Module.Import("SpellsDb")
+---@type Bm2TranslationModule
+local _t = Bm2Module.Import("Translation")
 
 ---@class Bm2Spell
 ---@field failedTargetsList table<string> Targets we failed buffing
@@ -35,7 +37,7 @@ end
 
 ---Go through cancel buff preferences and cancel the buffs found on the player
 function engine:CancelBuffs()
-  for _index, buffId in Bm2Addon.db.char.cancelBuffs do
+  for _index, buffId in ipairs(Bm2Addon.db.char.cancelBuffs) do
     local buff = spellsDb.allPossibleBuffs[buffId]
 
     if buff then
@@ -71,4 +73,22 @@ function engine:CancelBuff(cancelSpellids)
   end
 
   return ret
+end
+
+---If player just left the raid or party, reset the settings which groups to buff
+function engine:MaybeResetWatchGroups()
+  if UnitPlayerOrPetInParty("player") == false then
+    -- We have left the party - can clear monitored groups
+    local need_to_report = next(Bm2Addon.db.char.doNotScanGroup) ~= nil
+
+    -- TODO: Update checkboxes on watch groups
+    -- TODO: Update buff tab text (buff G1-8)
+    wipe(Bm2Addon.db.char.doNotScanGroup)
+
+    --BOM.UpdateBuffTabText()
+
+    if need_to_report then
+      Bm2Addon:Print(_t("Resetting watched raid groups to 1..8"))
+    end
+  end
 end
