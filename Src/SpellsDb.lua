@@ -32,9 +32,6 @@ function spellsDb:AddBuff(buffId)
   return newBuff
 end
 
-local function bm2DruidSpells()
-end
-
 local function bm2MageSpells()
 end
 

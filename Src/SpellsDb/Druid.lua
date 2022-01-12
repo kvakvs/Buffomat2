@@ -51,12 +51,17 @@ local function thorns()
 end
 
 local function naturesGrasp()
-  BOM.Class.SpellDef:scanSpell(spells, 17329, -- Nature's Grasp | Griff der Natur
-      { isOwn        = true, cancelForm = true, default = false,
-        hasCD        = true, requiresOutdoors = true,
-        singleFamily = { 16689, 16810, 16811, 16812, 16813, 17329, -- Rank 1-6
-                         27009 } }, -- TBC: Rank 7
-      druidOnly)
+  local singleRanks = {
+    spellDef:New("natures_grasp1", 16689),
+    spellDef:New("natures_grasp2", 16810),
+    spellDef:New("natures_grasp3", 16811),
+    spellDef:New("natures_grasp4", 16812),
+    spellDef:New("natures_grasp5", 16813),
+    spellDef:New("natures_grasp6", 17329),
+    spellDef:New("natures_grasp7_tbc", 27009, true),
+  }
+  spellsDb:AddBuff("buff_naturesgrasp"):SelfOnly()
+          :SingleBuff(singleRanks):Duration(45)
 end
 
 function druid:Spells()
@@ -69,6 +74,7 @@ function druid:Spells()
   spellsDb:AddBuff("buff_omenofclarity")
           :SelfOnly():CancelForm():DefaultEnabled()
           :SingleBuff(spellDef:New("omen_of_clarity", 25431))
+          :Duration(bm2const.DURATION_30M) -- TBC 30min, classic 10?
 
   naturesGrasp()
 

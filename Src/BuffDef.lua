@@ -17,6 +17,7 @@ local engine = Bm2Module.Import("Engine")
 ---@field buffType string Special handling for certain types - Enum buffDefModule.BUFFTYPE_*
 ---@field shapeshiftFormId number|nil Allows to check whether user is already in that shapeshift
 ---@field requiresShapeshiftFormId number|nil Requires player to be in this form
+---@field suggestedPriority number|nil Suggests when the buff should be prioritized, 0=asap, 100=anytime, or as 1000=late as possible
 local classBuffDef = {}
 classBuffDef.__index = classBuffDef
 
@@ -133,6 +134,14 @@ end
 ---@return Bm2BuffDefinition
 function classBuffDef:RequiresShapeshiftFormId(formId)
   self.requiresShapeshiftFormId = formId
+  return self
+end
+
+---Suggested priority: High=0, Normal=100, Last=1000
+---@param p number
+---@return Bm2BuffDefinition
+function classBuffDef:SuggestedPriority(p)
+  self.suggestedPriority = p
   return self
 end
 
