@@ -12,6 +12,8 @@ local spellsDb = Bm2Module.DeclareModule("SpellsDb")
 local buffDef = Bm2Module.DeclareModule("BuffDef")
 ---@type Bm2SpellsDbPriestModule
 local priest = Bm2Module.Import("SpellsDb/Priest")
+---@type Bm2SpellsDbDruidModule
+local druid = Bm2Module.Import("SpellsDb/Druid")
 ---@type Bm2ConstModule
 local bm2const = Bm2Module.Import("Const")
 
@@ -108,7 +110,7 @@ function spellsDb:InitSpellsDb()
 
   -- TODO: Call class spell init functions only if player class matches
   priest:Spells()
-  bm2DruidSpells()
+  druid:Spells()
   bm2MageSpells()
   bm2ShamanSpells()
   bm2WarlockSpells()

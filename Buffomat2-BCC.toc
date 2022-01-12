@@ -30,6 +30,7 @@ Src/SpellDef.lua
 Src/ItemDef.lua
 Src/BuffDef.lua
 Src/SpellsDb/Priest.lua
+Src/SpellsDb/Druid.lua
 Src/SpellsDb.lua
 Src/Bag.lua
 Src/Events.lua

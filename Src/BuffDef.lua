@@ -5,6 +5,7 @@ local engine = Bm2Module.Import("Engine")
 
 ---@class Bm2BuffDefinition
 ---@field buffId string
+---@field hint string Short explanation text used as tooltip?
 ---@field defaultOn boolean Set to true to have it enabled by default for new users
 ---@field singleBuff table<number, Bm2SpellDefinition> Table of spelldefs for single buff, lowest rank first
 ---@field groupBuff table<number, Bm2SpellDefinition> Table of spelldefs for group buff, lowest rank first
@@ -14,12 +15,15 @@ local engine = Bm2Module.Import("Engine")
 ---@field cancelForm boolean True to leave shapeshift form/shadow form
 ---@field targetClasses table<string>|string|nil Classes to only buff, nil to buff everyone, "player" for self only
 ---@field buffType string Special handling for certain types - Enum buffDefModule.BUFFTYPE_*
+---@field shapeshiftFormId number|nil Allows to check whether user is already in that shapeshift
+---@field requiresShapeshiftFormId number|nil Requires player to be in this form
 local classBuffDef = {}
 classBuffDef.__index = classBuffDef
 
 buffDefModule.BUFFTYPE_RESURRECTION = "resurrection" -- someone is dead
 buffDefModule.BUFFTYPE_ITEM_USE = "item_use" -- right click an item
 buffDefModule.BUFFTYPE_ITEM_TARGET_USE = "item_target_use" -- target someone then right click
+buffDefModule.BUFFTYPE_TRACKING = "tracking" -- enable via tracking API
 
 ---@return Bm2BuffDefinition
 function buffDefModule:New(buffId)
@@ -60,6 +64,13 @@ end
 ---@return Bm2BuffDefinition
 function classBuffDef:SelfOnly()
   self.targetClasses = "player"
+  return self
+end
+
+---Buff only targets player themself
+---@return Bm2BuffDefinition
+function classBuffDef:ShapeshiftFormId(id)
+  self.shapeshiftFormId = id
   return self
 end
 
@@ -106,6 +117,22 @@ end
 ---@return Bm2BuffDefinition
 function classBuffDef:TargetClasses(classes)
   self.targetClasses = classes
+  return self
+end
+
+---Add a short help text
+---@param hint string
+---@return Bm2BuffDefinition
+function classBuffDef:Hint(hint)
+  self.hint = hint
+  return self
+end
+
+---Requires player to be in this shapeshift form
+---@param formId number
+---@return Bm2BuffDefinition
+function classBuffDef:RequiresShapeshiftFormId(formId)
+  self.requiresShapeshiftFormId = formId
   return self
 end
 

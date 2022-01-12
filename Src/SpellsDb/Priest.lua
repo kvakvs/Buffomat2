@@ -1,5 +1,6 @@
 ---@class Bm2SpellsDbPriestModule
 local priest = Bm2Module.DeclareModule("SpellsDb/Priest")
+
 ---@type Bm2SpellsDbModule
 local spellsDb = Bm2Module.DeclareModule("SpellsDb")
 ---@type Bm2ConstModule
