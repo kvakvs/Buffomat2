@@ -10,12 +10,9 @@
 local engineModule = Bm2Module.DeclareModule("Engine")
 engineModule.activeBuffs = {}
 
----@type Bm2SpellsDbModule
-local spellsDb = Bm2Module.Import("SpellsDb")
----@type Bm2ProfileModule
-local profile = Bm2Module.Import("Profile")
----@type Bm2TranslationModule
-local _t = Bm2Module.Import("Translation")
+local spellsDb = Bm2Module.Import("SpellsDb") ---@type Bm2SpellsDbModule
+local profileModule = Bm2Module.Import("Profile") ---@type Bm2ProfileModule
+local _t = Bm2Module.Import("Translation")---@type Bm2TranslationModule
 
 ---@class Bm2Spell
 ---@field failedTargetsList table<string> Targets we failed buffing
@@ -31,7 +28,7 @@ end
 
 ---Go through cancel buff preferences and cancel the buffs found on the player
 function engineModule:CancelBuffs()
-  for _index, buffId in ipairs(profile.active.cancelBuffs) do
+  for _index, buffId in ipairs(profileModule.active.cancelBuffs) do
     local buff = spellsDb.allPossibleBuffs[buffId]
 
     if buff then

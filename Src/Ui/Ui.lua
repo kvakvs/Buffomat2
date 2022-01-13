@@ -6,15 +6,9 @@ local TOCNAME, _ = ...
 local uiModule = Bm2Module.DeclareModule("Ui")
 uiModule.managedUiFrames = {}
 
----@type Bm2ConstModule
-local bm2const = Bm2Module.Import("Const")
----@type Bm2PopupModule
-local popup = Bm2Module.Import("UiPopup")
----@type Bm2TranslationModule
-local translation = Bm2Module.Import("Translation")
-local function _t(key)
-  return translation(key)
-end
+local constModule = Bm2Module.Import("Const") ---@type Bm2ConstModule
+local popupModule = Bm2Module.Import("UiPopup") ---@type Bm2PopupModule
+local _t = Bm2Module.Import("Translation") ---@type Bm2TranslationModule
 
 ---@class Bm2Control
 
@@ -219,11 +213,11 @@ end
 ---@param texture string - path to UI texture file (for example can come from
 ---  GetContainerItemInfo(bag, slot) or spell info etc
 function uiModule:FormatTexture(texture)
-  return string.format(bm2const.IconFormat, texture)
+  return string.format(constModule.IconFormat, texture)
 end
 
 function uiModule:LateModuleInit()
-  uiModule.popupDynamic = popup:CreatePopup(function() end) -- BOM.OptionsUpdate
+  uiModule.popupDynamic = popupModule:CreatePopup(function() end) -- BOM.OptionsUpdate
 end
 
 -- Hides all icons and clickable buttons in the spells tab

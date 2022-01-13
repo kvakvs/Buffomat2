@@ -1,7 +1,7 @@
 ---@class Bm2BuffDefModule
 local buffDefModule = Bm2Module.DeclareModule("BuffDef")
----@type Bm2EngineModule
-local engine = Bm2Module.Import("Engine")
+
+local engine = Bm2Module.Import("Engine")---@type Bm2EngineModule
 
 ---@class Bm2BuffDefinition
 ---@field buffId string

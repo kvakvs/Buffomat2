@@ -8,14 +8,10 @@
 ---@field buffReverseLookup table<number, Bm2BuffDefinition> Reverse lookup of buff by spellid
 local spellsDbModule = Bm2Module.DeclareModule("SpellsDb")
 
----@type Bm2BuffDefModule
-local buffDef = Bm2Module.DeclareModule("BuffDef")
----@type Bm2SpellsDbPriestModule
-local priest = Bm2Module.Import("SpellsDb/Priest")
----@type Bm2SpellsDbDruidModule
-local druid = Bm2Module.Import("SpellsDb/Druid")
----@type Bm2ConstModule
-local bm2const = Bm2Module.Import("Const")
+local buffDef = Bm2Module.DeclareModule("BuffDef") ---@type Bm2BuffDefModule
+local priestModule = Bm2Module.Import("SpellsDb/Priest") ---@type Bm2SpellsDbPriestModule
+local druidModule = Bm2Module.Import("SpellsDb/Druid") ---@type Bm2SpellsDbDruidModule
+local constModule = Bm2Module.Import("Const")---@type Bm2ConstModule
 
 spellsDbModule.allPossibleBuffs = {}
 spellsDbModule.availableBuffs = {}
@@ -88,7 +84,7 @@ local function bm2InitCancelBuffs()
     mageIntellect,
   }
 
-  if bm2const.PlayerClass == "HUNTER" then
+  if constModule.PlayerClass == "HUNTER" then
     local singleRanks = {
       spellDef:New("aspect_of_the_cheetah", 5118),
       spellDef:New("aspect_of_the_pack", 13159),
@@ -98,7 +94,7 @@ local function bm2InitCancelBuffs()
     tinsert(spellsDbModule.cancelBuffs, buffHunterRunSpeed)
   end
 
-  if bm2const.PlayerFaction ~= "Horde" or bm2const.IsTBC then
+  if constModule.PlayerFaction ~= "Horde" or constModule.IsTBC then
     tinsert(spellsDbModule.cancelBuffs, spellsDbModule.allPossibleBuffs["buff_salvation"])
   end
 end
@@ -109,8 +105,8 @@ function spellsDbModule:InitSpellsDb()
   wipe(spellsDbModule.enchantIds)
 
   -- TODO: Call class spell init functions only if player class matches
-  priest:Spells()
-  druid:Spells()
+  priestModule:Spells()
+  druidModule:Spells()
   bm2MageSpells()
   bm2ShamanSpells()
   bm2WarlockSpells()

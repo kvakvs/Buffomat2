@@ -4,8 +4,7 @@
 local macroModule = Bm2Module.DeclareModule("Macro")
 macroModule.lines = {}
 
----@type Bm2ConstModule
-local bm2const = Bm2Module.Import("Const")
+local bm2const = Bm2Module.Import("Const") ---@type Bm2ConstModule
 
 function macroModule:Clear()
   if InCombatLockdown() then

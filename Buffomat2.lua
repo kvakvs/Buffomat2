@@ -7,20 +7,12 @@ Bm2Addon = LibStub("AceAddon-3.0"):NewAddon("Buffomat2", "AceConsole-3.0", "AceE
 
 local bm2 = Bm2Addon ---@type Bm2Addon
 
----@type Bm2OptionsModule
-local options = Bm2Module.Import("Options")
----@type Bm2EventsModule
-local bm2events = Bm2Module.Import("Events");
----@type Bm2SlashModule
-local slash = Bm2Module.Import("Slash");
----@type Bm2UiModule
-local bm2ui = Bm2Module.Import("Ui");
----@type Bm2TranslationModule
-local _t = Bm2Module.Import("Translation")
----@type Bm2SpellsDbModule
-local spellsDb = Bm2Module.Import("SpellsDb")
----@type Bm2UiMainWindowModule
-local uiMainWindow = Bm2Module.Import("UiMainWindow")
+local optionsModule = Bm2Module.Import("Options") ---@type Bm2OptionsModule
+local slashModule = Bm2Module.Import("Slash"); ---@type Bm2SlashModule
+local uiModule = Bm2Module.Import("Ui"); ---@type Bm2UiModule
+local _t = Bm2Module.Import("Translation") ---@type Bm2TranslationModule
+local spellsDb = Bm2Module.Import("SpellsDb") ---@type Bm2SpellsDbModule
+local mainWindowModule = Bm2Module.Import("Ui/MainWindow")---@type Bm2UiMainWindowModule
 
 local function bm2MakeOptions()
   return {
@@ -29,13 +21,13 @@ local function bm2MakeOptions()
     type        = "group",
     childGroups = "tab",
     args        = {
-      general_tab = options:MakeGeneralTab(),
+      general_tab = optionsModule:MakeGeneralTab(),
     }
   }
 end
 
 function bm2:OnInitialize()
-  bm2.db = LibStub("AceDB-3.0"):New("Bm2Conf", options:GetDefaults(), true)
+  bm2.db = LibStub("AceDB-3.0"):New("Bm2Conf", optionsModule:GetDefaults(), true)
 
   Bm2Module.CallInEachModule("EarlyModuleInit")
 end
@@ -58,13 +50,13 @@ function bm2:OnInitializeStep2()
   spellsDb:InitSpellsDb()
   -- spellsDb:FilterAvailableSpells() -- no need to call here, it will be called on character enter world
 
-  bm2ui:SetupMainWindow()
+  uiModule:SetupMainWindow()
 
   Bm2Module.CallInEachModule("LateModuleInit")
 end
 
 function bm2:HandleSlash(input)
-  slash:HandleSlash(input)
+  slashModule:HandleSlash(input)
 end
 
 function bm2:OnEnable()
@@ -81,7 +73,7 @@ end
 
 ---Close ❌ button was clicked in the main window. Hide it.
 function bm2:OnCloseClick()
-  uiMainWindow:HideWindow("user close")
+  mainWindowModule:HideWindow("user close")
 end
 
 ---Settings ⚙ button was clicked

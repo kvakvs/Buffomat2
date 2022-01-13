@@ -1,16 +1,11 @@
 ---@class Bm2SpellsDbPriestModule
 local priest = Bm2Module.DeclareModule("SpellsDb/Priest")
 
----@type Bm2SpellsDbModule
-local spellsDb = Bm2Module.DeclareModule("SpellsDb")
----@type Bm2ConstModule
-local bm2const = Bm2Module.Import("Const")
----@type Bm2SpellDefModule
-local spellDef = Bm2Module.Import("SpellDef")
----@type Bm2ItemDefModule
-local itemDef = Bm2Module.Import("ItemDef")
----@type Bm2BuffDefModule
-local buffDef = Bm2Module.Import("BuffDef")
+local spellsDb = Bm2Module.DeclareModule("SpellsDb") ---@type Bm2SpellsDbModule
+local constModule = Bm2Module.Import("Const") ---@type Bm2ConstModule
+local spellDef = Bm2Module.Import("SpellDef") ---@type Bm2SpellDefModule
+local itemDef = Bm2Module.Import("ItemDef") ---@type Bm2ItemDefModule
+local buffDef = Bm2Module.Import("BuffDef")---@type Bm2BuffDefModule
 
 ---@param holyCandle Bm2ItemDefinition
 ---@param sacredCandle Bm2ItemDefinition
@@ -31,7 +26,7 @@ local function fortitude(holyCandle, sacredCandle)
   }
   spellsDb:AddBuff("buff_fortitude"):DefaultEnabled()
           :SingleBuff(singleRanks):GroupBuff(prayerRanks)
-          :Duration(bm2const.DURATION_30M, bm2const.DURATION_1H)
+          :Duration(constModule.DURATION_30M, constModule.DURATION_1H)
 end
 
 ---@param sacredCandle Bm2ItemDefinition
@@ -49,8 +44,8 @@ local function spirit(sacredCandle)
   }
   spellsDb:AddBuff("buff_spirit"):DefaultEnabled()
           :SingleBuff(singleRanks):GroupBuff(prayerRanks)
-          :Duration(bm2const.DURATION_30M, bm2const.DURATION_1H)
-          :TargetClasses(bm2const.MANA_CLASSES)
+          :Duration(constModule.DURATION_30M, constModule.DURATION_1H)
+          :TargetClasses(constModule.MANA_CLASSES)
 end
 
 ---@param holyCandle Bm2ItemDefinition
@@ -68,7 +63,7 @@ local function shadowProtection(holyCandle, sacredCandle)
   }
   spellsDb:AddBuff("buff_shadow_prot")
           :SingleBuff(singleRanks):GroupBuff(prayerRanks)
-          :Duration(bm2const.DURATION_10M, bm2const.DURATION_20M)
+          :Duration(constModule.DURATION_10M, constModule.DURATION_20M)
 end
 
 local function shield()
@@ -147,7 +142,7 @@ end
 
 local function elunesGrace()
   local singleRanks = {}
-  if (bm2const.IsTBC) then
+  if (constModule.IsTBC) then
     singleRanks = { -- TBC: The only rank
       spellDef:New("shadowguard_tbc", 2651, true),
     }
@@ -174,7 +169,7 @@ function priest:Spells()
 
   spellsDb:AddBuff("buff_fear_ward")
           :SingleBuff(spellDef:New("fear_ward", 6346))
-          :Duration(bm2const.DURATION_10M):HasCooldown()
+          :Duration(constModule.DURATION_10M):HasCooldown()
 
   shield()
   touchOfWeakness()

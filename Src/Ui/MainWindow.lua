@@ -1,19 +1,13 @@
 ---@class Bm2UiMainWindowModule
 ---@field windowHideBehaviour string Store user intent, "keepOpen", "keepClosed", "autoOpen", "autoClosed"
 ---@field spellTabsCreatedFlag boolean Set to true after spells have been scanned and added to the Spells tab
-local mainwindowModule = Bm2Module.DeclareModule("UiMainWindow")
----@type Bm2EngineModule
-local engine = Bm2Module.Import("Engine")
----@type Bm2TranslationModule
-local _t = Bm2Module.Import("Translation")
----@type Bm2ConstModule
-local bm2const = Bm2Module.Import("Const")
----@type Bm2TaskListModule
-local taskList = Bm2Module.Import("TaskList")
----@type Bm2ProfileModule
-local profile = Bm2Module.Import("Profile")
----@type Bm2SpellsDbModule
-local spellsDb = Bm2Module.Import("SpellsDb")
+local mainwindowModule = Bm2Module.DeclareModule("Ui/MainWindow")
+
+local _t = Bm2Module.Import("Translation") ---@type Bm2TranslationModule
+local bm2const = Bm2Module.Import("Const") ---@type Bm2ConstModule
+local taskList = Bm2Module.Import("TaskList") ---@type Bm2TaskListModule
+local profile = Bm2Module.Import("Profile") ---@type Bm2ProfileModule
+local spellsDb = Bm2Module.Import("SpellsDb") ---@type Bm2SpellsDbModule
 
 local BM2INTENT_AUTO_CLOSED = "autoClosed"
 local BM2INTENT_AUTO_OPEN = "autoOpen"

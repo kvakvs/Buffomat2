@@ -8,25 +8,18 @@ taskListModule.tasks = {} ---@type table<number, Bm2Task>
 ---@field text string Extra message to display
 ---@field error string|nil Error message, if not nil, display only error in red
 
----@type Bm2EngineModule
-local engine = Bm2Module.Import("Engine")
----@type Bm2TranslationModule
-local _t = Bm2Module.Import("Translation")
----@type Bm2ConstModule
-local bm2const = Bm2Module.Import("Const")
----@type Bm2UiModule
-local bm2ui = Bm2Module.Import("Ui")
----@type Bm2UiMainWindowModule
-local mainWindow = Bm2Module.Import("UiMainWindow")
----@type Bm2MacroModule
-local macro = Bm2Module.Import("Macro")
----@type Bm2ProfileModule
-local profile = Bm2Module.Import("Profile")
+local engineModule = Bm2Module.Import("Engine") ---@type Bm2EngineModule
+local _t = Bm2Module.Import("Translation") ---@type Bm2TranslationModule
+local constModule = Bm2Module.Import("Const") ---@type Bm2ConstModule
+local uiModule = Bm2Module.Import("Ui") ---@type Bm2UiModule
+local mainWindow = Bm2Module.Import("Ui/MainWindow") ---@type Bm2UiMainWindowModule
+local macroModule = Bm2Module.Import("Macro") ---@type Bm2MacroModule
+local profileModule = Bm2Module.Import("Profile")---@type Bm2ProfileModule
 
 ---Returns flying, if no autodismount. Otherwise we're "not flying", feel free
 ---to fall to your death.
 local function bm2IsFlying()
-  if bm2const.IsTBC then
+  if constModule.IsTBC then
     return IsFlying() and not Bm2Addon.db.char.autoDismountFlying
   end
   return false
@@ -34,9 +27,9 @@ end
 
 local function bm2IsMountedAndCrusaderAuraRequired()
   return Bm2Addon.db.char.autoCrusaderAura -- if setting enabled
-      and IsSpellKnown(bm2const.spellId.PALADIN_CRUSADERAURA) -- and has the spell
+      and IsSpellKnown(constModule.spellId.PALADIN_CRUSADERAURA) -- and has the spell
       and (IsMounted() or bm2IsFlying()) -- and flying or mounted otherwise
-      and GetShapeshiftForm() ~= bm2const.shapeshiftForm.PALADIN_CRUSADERAURA -- and not crusader aura
+      and GetShapeshiftForm() ~= constModule.shapeshiftForm.PALADIN_CRUSADERAURA -- and not crusader aura
 end
 
 ---Run checks to see if Buffomat should not be scanning buffs
@@ -99,7 +92,8 @@ local function bm2IsActive()
   return true, nil
 end
 
-local function bm2Scan_Step2()
+---Continue scanning for active buffs which are missing on targets
+function taskListModule:Scan_Step2()
   local party, playerMember = BOM.GetPartyMembers()
 
   local someoneIsDead = bomSaveSomeoneIsDead
@@ -226,12 +220,12 @@ end
 function taskListModule:Scan(caller)
   Bm2Addon:Print("Scan (called from " .. caller .. ")")
 
-  if next(engine.selectedSpells) == nil then
+  if next(engineModule.selectedSpells) == nil then
     -- No selected spells, nothing to do
     return
   end
 
-  if engine.loadingScreen then
+  if engineModule.loadingScreen then
     -- No action during the loading screen
     return
   end
@@ -241,24 +235,24 @@ function taskListModule:Scan(caller)
   -- Check whether BOM is disabled due to some option and a matching condition
   local isBm2Active, reasonDisabled = bm2IsActive()
   if not isBm2Active then
-    engine.forceUpdate = false
+    engineModule.forceUpdate = false
     mainWindow:AutoClose()
-    macro:Clear()
+    macroModule:Clear()
     mainWindow:CastButton(reasonDisabled, false)
     return
   end
 
   --Choose Profile
-  local selectedProfile = profile:ChooseProfile()
-  if profile:Activate(selectedProfile) then
+  local selectedProfile = profileModule:ChooseProfile()
+  if profileModule:Activate(selectedProfile) then
     mainWindow:UpdateSpellTabs("tasklist:scan() profile changed")
     BM2_MAIN_WINDOW_TITLE:SetText(
-        bm2ui:FormatTexture(bm2const.MacroIconFullpath)
-            .. " " .. bm2const.AddonName .. " - "
+        uiModule:FormatTexture(constModule.MacroIconFullpath)
+            .. " " .. constModule.AddonName .. " - "
             .. _t("profile_" .. selectedProfile))
-    engine:SetForceUpdate("tasklist:scan() profile changed")
+    engineModule:SetForceUpdate("tasklist:scan() profile changed")
   end
 
   -- All pre-checks passed
-  bm2Scan_Step2()
+  taskListModule:Scan_Step2()
 end

@@ -2,8 +2,8 @@
 ---@field activeProfileName string|nil One of solo, party, raid, pvp...
 ---@field active Bm2Profile
 local profileModule = Bm2Module.DeclareModule("Profile")
----@type Bm2SpellsDbModule
-local spellsDb = Bm2Module.Import("SpellsDb")
+
+local spellsDb = Bm2Module.Import("SpellsDb") ---@type Bm2SpellsDbModule
 
 function profileModule:EarlyModuleInit()
   profileModule.activeProfileName = nil

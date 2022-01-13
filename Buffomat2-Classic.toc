@@ -20,6 +20,7 @@ Src/Const.lua
 Src/Ui/Ui.lua
 Src/Ui/MainWindow.lua
 Src/Ui/Popup.lua
+Src/Ui/RowBuilder.lua
 Src/Tooltip.lua
 
 Xml/embeds.xml

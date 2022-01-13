@@ -1,7 +1,7 @@
 ---@class Bm2OptionsModule
 local options = Bm2Module.DeclareModule("Options")
----@type Bm2ProfileModule
-local profile = Bm2Module.Import("Profile")
+
+local profileModule = Bm2Module.Import("Profile")---@type Bm2ProfileModule
 
 ---@type Bm2TranslationModule
 local translation = Bm2Module.Import("Translation")
@@ -302,10 +302,10 @@ function options:GetDefaults()
       useProfiles         = false,
       forceProfile        = "",
       profile = {
-        solo = profile:NewProfile(),
-        raid = profile:NewProfile(),
-        party = profile:NewProfile(),
-        pvp = profile:NewProfile(),
+        solo = profileModule:NewProfile(),
+        raid = profileModule:NewProfile(),
+        party = profileModule:NewProfile(),
+        pvp = profileModule:NewProfile(),
       },
     },
   }

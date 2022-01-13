@@ -1,15 +1,11 @@
 ---@class Bm2EventsModule
 local eventsModule = Bm2Module.DeclareModule("Events")
----@type Bm2ConstModule
-local bm2const = Bm2Module.Import("Const")
----@type Bm2UiMainWindowModule
-local mainWindow = Bm2Module.Import("UiMainWindow")
----@type Bm2EngineModule
-local engine = Bm2Module.Import("Engine")
----@type Bm2SpellsDbModule
-local spellsDb = Bm2Module.Import("SpellsDb")
----@type Bm2BagModule
-local bm2bag = Bm2Module.Import("Bag")
+
+local bm2const = Bm2Module.Import("Const") ---@type Bm2ConstModule
+local mainWindow = Bm2Module.Import("Ui/MainWindow") ---@type Bm2UiMainWindowModule
+local engine = Bm2Module.Import("Engine") ---@type Bm2EngineModule
+local spellsDb = Bm2Module.Import("SpellsDb") ---@type Bm2SpellsDbModule
+local bm2bag = Bm2Module.Import("Bag")---@type Bm2BagModule
 
 local EVT_COMBAT_STOP = { "PLAYER_REGEN_ENABLED" }
 local EVT_COMBAT_START = { "PLAYER_REGEN_DISABLED" }
