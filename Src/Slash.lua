@@ -1,5 +1,6 @@
 ---@class Bm2SlashModule
-local slash = Bm2Module.DeclareModule("Slash")
+local slashModule = Bm2Module.DeclareModule("Slash")
 
-function slash:HandleSlash(input)
+function slashModule:HandleSlash(input)
+  Bm2Addon:Print("slash: " .. input)
 end

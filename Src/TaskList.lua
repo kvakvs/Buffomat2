@@ -1,6 +1,6 @@
 ---@class Bm2TaskListModule
-local taskList = Bm2Module.DeclareModule("TaskList")
-taskList.tasks = {} ---@type table<number, Bm2Task>
+local taskListModule = Bm2Module.DeclareModule("TaskList")
+taskListModule.tasks = {} ---@type table<number, Bm2Task>
 
 ---@class Bm2Task
 ---@field buffId string
@@ -223,7 +223,7 @@ local function bm2Scan_Step2()
   end -- if not player casting
 end
 
-function taskList:Scan(caller)
+function taskListModule:Scan(caller)
   Bm2Addon:Print("Scan (called from " .. caller .. ")")
 
   if next(engine.selectedSpells) == nil then
@@ -236,7 +236,7 @@ function taskList:Scan(caller)
     return
   end
 
-  wipe(taskList.tasks)
+  wipe(taskListModule.tasks)
 
   -- Check whether BOM is disabled due to some option and a matching condition
   local isBm2Active, reasonDisabled = bm2IsActive()

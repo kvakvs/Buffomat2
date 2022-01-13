@@ -17,9 +17,9 @@
 Src/Module.lua
 Src/Const.lua
 # Tooltip and UI: load them before XMLs - they are using it
-Src/Ui.lua
-Src/UiMainWindow.lua
-Src/UiPopup.lua
+Src/Ui/Ui.lua
+Src/Ui/MainWindow.lua
+Src/Ui/Popup.lua
 Src/Tooltip.lua
 
 Xml/embeds.xml
@@ -28,12 +28,12 @@ Xml/Buffomat2.xml
 Src/Translation.lua
 Src/Engine.lua
 Src/TaskList.lua
-Src/SpellDef.lua
-Src/ItemDef.lua
-Src/BuffDef.lua
+Src/SpellsDb/ItemDef.lua
+Src/SpellsDb/SpellDef.lua
+Src/SpellsDb/BuffDef.lua
 Src/SpellsDb/Priest.lua
 Src/SpellsDb/Druid.lua
-Src/SpellsDb.lua
+Src/SpellsDb/SpellsDb.lua
 Src/Bag.lua
 Src/Events.lua
 Src/Slash.lua

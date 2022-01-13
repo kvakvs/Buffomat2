@@ -1,7 +1,9 @@
 ---@class Bm2ProfileModule
 ---@field activeProfileName string|nil One of solo, party, raid, pvp...
----@field activeProfile Bm2Profile
+---@field active Bm2Profile
 local profileModule = Bm2Module.DeclareModule("Profile")
+---@type Bm2SpellsDbModule
+local spellsDb = Bm2Module.Import("SpellsDb")
 
 function profileModule:EarlyModuleInit()
   profileModule.activeProfileName = nil
@@ -9,6 +11,7 @@ function profileModule:EarlyModuleInit()
 end
 
 ---@class Bm2Profile
+---@field selectedBuffs table<number, string> buffIds to activate
 ---@field cancelBuffs table<number, string> buffIds to cancel on combat start
 ---@field doNotScanGroup table<number, boolean> raidgroups which user clicked to not scan.
 ---@field scanInRestAreas boolean
@@ -27,6 +30,7 @@ end
 ---@return Bm2Profile
 function profileModule:NewProfile()
   return {
+    selectedBuffs       = profileModule:GetDefaultEnabledBuffs(),
     cancelBuffs         = {}, -- list(buffId)
     scanGroup           = {}, -- [number] => true
     scanInRestAreas     = true,
@@ -108,4 +112,16 @@ function profileModule:Activate(profileName)
   end
 
   return false
+end
+
+---Go through all buffs known to the player, and if they are on by default, add
+---their name to the result
+function profileModule:GetDefaultEnabledBuffs()
+  local result = {}
+  for buffId, buff in pairs(spellsDb.availableBuffs) do
+    if buff.defaultEnabled then
+      tinsert(result, buffId)
+    end
+  end
+  return result
 end

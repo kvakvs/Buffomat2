@@ -1,34 +1,34 @@
 ---@class Bm2MacroModule
 ---@field lines table<number, string>
 ---@field icon string
-local macro = Bm2Module.DeclareModule("Macro")
-macro.lines = {}
+local macroModule = Bm2Module.DeclareModule("Macro")
+macroModule.lines = {}
 
 ---@type Bm2ConstModule
 local bm2const = Bm2Module.Import("Const")
 
-function macro:Clear()
+function macroModule:Clear()
   if InCombatLockdown() then
     return
   end
 
-  macro:Recreate()
-  macro.lines = {}
-  macro.icon = bm2const.MacroIconDisabled
-  EditMacro(bm2const.MacroName, nil, macro.icon, macro:GetText())
+  macroModule:Recreate()
+  macroModule.lines = {}
+  macroModule.icon = bm2const.MacroIconDisabled
+  EditMacro(bm2const.MacroName, nil, macroModule.icon, macroModule:GetText())
 end
 
 ---@return string
-function macro:GetText()
+function macroModule:GetText()
   local t = "#showtooltip\n/bm2 update"
-  for i, line in ipairs(macro.lines) do
+  for i, line in ipairs(macroModule.lines) do
     t = t .. "\n" .. line
   end
   return t
 end
 
 ---Recreate if macro is missing
-function macro:Recreate()
+function macroModule:Recreate()
   if GetMacroInfo(bm2const.MacroName) == nil then
     local perAccount, perChar = GetNumMacros()
     local isChar

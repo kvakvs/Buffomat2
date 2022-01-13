@@ -2,7 +2,9 @@ local TOCNAME, _ = ...
 
 ---@class Bm2UiModule
 ---@field popupDynamic table Popup menu on minimap icon and on the addon window
-local bm2ui = Bm2Module.DeclareModule("Ui")
+---@field managedUiFrames table<number, Bm2Control> All frames and buttons to be group managed/hidden/reused
+local uiModule = Bm2Module.DeclareModule("Ui")
+uiModule.managedUiFrames = {}
 
 ---@type Bm2ConstModule
 local bm2const = Bm2Module.Import("Const")
@@ -27,7 +29,7 @@ local function bm2FrameDragStop(self)
   end
 end
 
-function bm2ui.EnableMoving(frame, callback)
+function uiModule.EnableMoving(frame, callback)
   frame:SetMovable(true)
   frame:EnableMouse(true)
   frame:RegisterForDrag("LeftButton")
@@ -53,7 +55,7 @@ local function bm2SelectTab(self)
   end
 end
 
-function bm2ui.SelectTab(frame, id)
+function uiModule.SelectTab(frame, id)
   if id and frame.Tabs and frame.Tabs[id] then
     bm2SelectTab(frame.Tabs[id])
   end
@@ -64,7 +66,7 @@ end
 ---@param name string - tab text
 ---@param tabFrame Bm2Control | string - tab text
 ---@param combatlockdown boolean - accessible in combat or not
-function bm2ui.AddTab(frame, name, tabFrame, combatlockdown)
+function uiModule.AddTab(frame, name, tabFrame, combatlockdown)
   local frameName
 
   if type(frame) == "string" then
@@ -170,7 +172,7 @@ local function bm2CreateSizeBorder(frame, name, a1, x1, y1, a2, x2, y2, cursor, 
   return frameSizeBorder
 end
 
-function bm2ui.EnableSizing(frame, border, OnStart, OnStop)
+function uiModule.EnableSizing(frame, border, OnStart, OnStop)
   if not bm2ResizeCursor then
     bm2ResizeCursor = CreateFrame("Frame", nil, UIParent)
     bm2ResizeCursor:Hide()
@@ -216,10 +218,17 @@ end
 ---Creates a string which will display a picture in a FontString
 ---@param texture string - path to UI texture file (for example can come from
 ---  GetContainerItemInfo(bag, slot) or spell info etc
-function bm2ui:FormatTexture(texture)
+function uiModule:FormatTexture(texture)
   return string.format(bm2const.IconFormat, texture)
 end
 
-function bm2ui:LateModuleInit()
-  bm2ui.popupDynamic = popup:CreatePopup(function() end) -- BOM.OptionsUpdate
+function uiModule:LateModuleInit()
+  uiModule.popupDynamic = popup:CreatePopup(function() end) -- BOM.OptionsUpdate
+end
+
+-- Hides all icons and clickable buttons in the spells tab
+function uiModule:HideAllManagedFrames()
+  for i, frame in ipairs(uiModule.managedUiFrames) do
+    frame:Hide()
+  end
 end

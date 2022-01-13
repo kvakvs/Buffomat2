@@ -6,7 +6,7 @@
 ---@field enchantIds table<number, string> Weapon enchantment id to buff id reverse lookup
 ---@field availableSpellIds table<number, number> Ids of spells available to the player, for combat log filtering
 ---@field buffReverseLookup table<number, Bm2BuffDefinition> Reverse lookup of buff by spellid
-local spellsDb = Bm2Module.DeclareModule("SpellsDb")
+local spellsDbModule = Bm2Module.DeclareModule("SpellsDb")
 
 ---@type Bm2BuffDefModule
 local buffDef = Bm2Module.DeclareModule("BuffDef")
@@ -17,21 +17,21 @@ local druid = Bm2Module.Import("SpellsDb/Druid")
 ---@type Bm2ConstModule
 local bm2const = Bm2Module.Import("Const")
 
-spellsDb.allPossibleBuffs = {}
-spellsDb.availableBuffs = {}
-spellsDb.enchantIds = {}
-spellsDb.cancelBuffs = {}
-spellsDb.availableSpellIds = {} -- for combat log filtering
-spellsDb.buffReverseLookup = {} -- for finding buff defs by spellid
+spellsDbModule.allPossibleBuffs = {}
+spellsDbModule.availableBuffs = {}
+spellsDbModule.enchantIds = {}
+spellsDbModule.cancelBuffs = {}
+spellsDbModule.availableSpellIds = {} -- for combat log filtering
+spellsDbModule.buffReverseLookup = {} -- for finding buff defs by spellid
 
 ---@param buffId string Unique string key to the buff
 ---@return Bm2BuffDefinition
-function spellsDb:AddBuff(buffId)
+function spellsDbModule:AddBuff(buffId)
   local newBuff = buffDef:New(buffId) ---@type Bm2BuffDefinition
-  if spellsDb.allPossibleBuffs[buffId] then
+  if spellsDbModule.allPossibleBuffs[buffId] then
     Bm2Addon:Print("Duplicate buffid=" .. buffId .. " please fix")
   end
-  spellsDb.allPossibleBuffs[buffId] = newBuff
+  spellsDbModule.allPossibleBuffs[buffId] = newBuff
   return newBuff
 end
 
@@ -78,11 +78,11 @@ local function bm2Food()
 end
 
 local function bm2InitCancelBuffs()
-  local priestSpirit = spellsDb.allPossibleBuffs["buff_spirit"]
-  local priestShield = spellsDb.allPossibleBuffs["buff_shield"]
-  local mageIntellect = spellsDb.allPossibleBuffs["buff_arcane_intel"]
+  local priestSpirit = spellsDbModule.allPossibleBuffs["buff_spirit"]
+  local priestShield = spellsDbModule.allPossibleBuffs["buff_shield"]
+  local mageIntellect = spellsDbModule.allPossibleBuffs["buff_arcane_intel"]
 
-  spellsDb.cancelBuffs = {
+  spellsDbModule.cancelBuffs = {
     priestShield,
     priestSpirit,
     mageIntellect,
@@ -95,18 +95,18 @@ local function bm2InitCancelBuffs()
     }
     local buffHunterRunSpeed = buffDef:New("cancelbuff_hunter_run")
                                       :SelfOnly():SingleBuff(singleRanks)
-    tinsert(spellsDb.cancelBuffs, buffHunterRunSpeed)
+    tinsert(spellsDbModule.cancelBuffs, buffHunterRunSpeed)
   end
 
   if bm2const.PlayerFaction ~= "Horde" or bm2const.IsTBC then
-    tinsert(spellsDb.cancelBuffs, spellsDb.allPossibleBuffs["buff_salvation"])
+    tinsert(spellsDbModule.cancelBuffs, spellsDbModule.allPossibleBuffs["buff_salvation"])
   end
 end
 
 ---Build a table of spells known to Buffomat, for all classes
-function spellsDb:InitSpellsDb()
-  wipe(spellsDb.allPossibleBuffs)
-  wipe(spellsDb.enchantIds)
+function spellsDbModule:InitSpellsDb()
+  wipe(spellsDbModule.allPossibleBuffs)
+  wipe(spellsDbModule.enchantIds)
 
   -- TODO: Call class spell init functions only if player class matches
   priest:Spells()
@@ -149,26 +149,26 @@ end
 ---From spells known to Buffomat and spells known to the player, build a list of
 ---spells which we actually have available to the player. This list might change
 ---for example due to level up, visiting a trainer, etc.
-function spellsDb:FilterAvailableSpells()
-  wipe(spellsDb.availableBuffs)
-  wipe(spellsDb.availableSpellIds)
-  wipe(spellsDb.buffReverseLookup)
+function spellsDbModule:FilterAvailableSpells()
+  wipe(spellsDbModule.availableBuffs)
+  wipe(spellsDbModule.availableSpellIds)
+  wipe(spellsDbModule.buffReverseLookup)
 
-  for _index, buff in pairs(spellsDb.allPossibleBuffs) do
+  for _index, buff in pairs(spellsDbModule.allPossibleBuffs) do
     if buff:IsAvailable() then
-      spellsDb.availableBuffs[buff.buffId] = buff
+      spellsDbModule.availableBuffs[buff.buffId] = buff
 
       for _, spell in ipairs(buff.singleBuff) do
         if spell:IsAvailable() then
-          spellsDb.availableSpellIds[spell.id] = true
-          spellsDb.buffReverseLookup[spell.id] = buff
+          spellsDbModule.availableSpellIds[spell.id] = true
+          spellsDbModule.buffReverseLookup[spell.id] = buff
         end
       end -- for single buffs
 
       for _, spell in ipairs(buff.groupBuff) do
         if spell:IsAvailable() then
-          spellsDb.availableSpellIds[spell.id] = true
-          spellsDb.buffReverseLookup[spell.id] = buff
+          spellsDbModule.availableSpellIds[spell.id] = true
+          spellsDbModule.buffReverseLookup[spell.id] = buff
         end
       end -- for group buffs
     end -- if available

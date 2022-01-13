@@ -30,6 +30,21 @@ buffDefModule.SEQ_EARLY = 0
 buffDefModule.SEQ_NORMAL = 100
 buffDefModule.SEQ_LATE = 1000
 
+---Returns true if this buff is a class ability, spell or tracking buff
+---@return boolean
+function classBuffDef:IsClassBuff()
+  return self.buffType == nil
+      or self.buffType == buffDefModule.BUFFTYPE_TRACKING
+      or self.buffType == buffDefModule.BUFFTYPE_RESURRECTION
+end
+
+---Returns true if this buff is a consumable item, or elixir
+---@return boolean
+function classBuffDef:IsConsumableBuff()
+  return self.buffType == buffDefModule.BUFFTYPE_ITEM_TARGET_USE
+      or self.buffType == buffDefModule.BUFFTYPE_ITEM_USE
+end
+
 ---@return Bm2BuffDefinition
 function buffDefModule:New(buffId)
   local fields = {} ---@type Bm2BuffDefinition

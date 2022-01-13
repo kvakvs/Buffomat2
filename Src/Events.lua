@@ -1,9 +1,9 @@
 ---@class Bm2EventsModule
-local bm2events = Bm2Module.DeclareModule("Events")
+local eventsModule = Bm2Module.DeclareModule("Events")
 ---@type Bm2ConstModule
 local bm2const = Bm2Module.Import("Const")
 ---@type Bm2UiMainWindowModule
-local uiMainWindow = Bm2Module.Import("UiMainWindow")
+local mainWindow = Bm2Module.Import("UiMainWindow")
 ---@type Bm2EngineModule
 local engine = Bm2Module.Import("Engine")
 ---@type Bm2SpellsDbModule
@@ -188,7 +188,7 @@ end
 ---On combat start will close the UI window and disable the UI. Will cancel the cancelable buffs.
 local function bm2event_CombatStart()
   engine:SetForceUpdate("combat start")
-  uiMainWindow.AutoClose()
+  mainWindow.AutoClose()
 
   if not InCombatLockdown() then
     BM2_TASKS_TAB_CAST_BUTTON:Disable()
@@ -200,7 +200,7 @@ end
 local function bm2event_CombatStop()
   engine:ClearSkipList()
   engine:SetForceUpdate("combat stop")
-  uiMainWindow.AllowAutoOpen()
+  mainWindow.AllowAutoOpen()
 end
 
 local function bm2event_LoadingStart()
@@ -217,7 +217,7 @@ end
 local function bm2event_SpellsChanged()
   spellsDb:FilterAvailableSpells()
   engine:SetForceUpdate("spells changed")
-  uiMainWindow.spellTabsCreatedFlag = false
+  mainWindow.spellTabsCreatedFlag = false
   -- engine:OptionsInsertSpells() -- update options page with all known spells?
 end
 
@@ -246,13 +246,13 @@ local function bm2event_Bag()
   bm2bag:Invalidate()
 end
 
-function bm2events:RegisterEarlyEvents()
+function eventsModule:RegisterEarlyEvents()
   --Bm2Addon:RegisterEvent("PLAYER_LOGIN", function()
   Bm2Addon:RegisterEvent("PLAYER_ENTERING_WORLD", function() Bm2Addon:OnInitializeStep2() end)
   Bm2Addon:RegisterEvent("LOADING_SCREEN_DISABLED", function() Bm2Addon:OnInitializeStep2() end)
 end
 
-function bm2events:RegisterLateEvents()
+function eventsModule:RegisterLateEvents()
   -- Events which might change active state of Buffomat
   Bm2Addon:RegisterEvent("ZONE_CHANGED", function()
     engine:SetForceUpdate("zone changed")
@@ -312,10 +312,10 @@ function bm2events:RegisterLateEvents()
   end
 end
 
-function bm2events:EarlyModuleInit()
-  bm2events:RegisterEarlyEvents()
+function eventsModule:EarlyModuleInit()
+  eventsModule:RegisterEarlyEvents()
 end
 
-function bm2events:LateModuleInit()
-  bm2events:RegisterLateEvents()
+function eventsModule:LateModuleInit()
+  eventsModule:RegisterLateEvents()
 end

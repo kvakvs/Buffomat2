@@ -1,7 +1,7 @@
 ---@class Bm2UiMainWindowModule
 ---@field windowHideBehaviour string Store user intent, "keepOpen", "keepClosed", "autoOpen", "autoClosed"
 ---@field spellTabsCreatedFlag boolean Set to true after spells have been scanned and added to the Spells tab
-local uiMainWindow = Bm2Module.DeclareModule("UiMainWindow")
+local mainwindowModule = Bm2Module.DeclareModule("UiMainWindow")
 ---@type Bm2EngineModule
 local engine = Bm2Module.Import("Engine")
 ---@type Bm2TranslationModule
@@ -10,12 +10,16 @@ local _t = Bm2Module.Import("Translation")
 local bm2const = Bm2Module.Import("Const")
 ---@type Bm2TaskListModule
 local taskList = Bm2Module.Import("TaskList")
+---@type Bm2ProfileModule
+local profile = Bm2Module.Import("Profile")
+---@type Bm2SpellsDbModule
+local spellsDb = Bm2Module.Import("SpellsDb")
 
 local BM2INTENT_AUTO_CLOSED = "autoClosed"
 local BM2INTENT_AUTO_OPEN = "autoOpen"
 local BM2INTENT_KEEP_CLOSED = "keepClosed"
 local BM2INTENT_KEEP_OPEN = "keepOpen"
-uiMainWindow.windowHideBehaviour = BM2INTENT_AUTO_CLOSED
+mainwindowModule.windowHideBehaviour = BM2INTENT_AUTO_CLOSED
 
 ---@type Bm2UiModule
 local bm2ui = Bm2Module.Import("Ui")
@@ -70,20 +74,20 @@ function bm2ui:SetupMainWindow()
 end
 
 ---Close window and set close reason to "user clicked close button"
-function uiMainWindow:HideWindow(reason)
+function mainwindowModule:HideWindow(reason)
   if BM2_MAIN_WINDOW:IsVisible() then
     BM2_MAIN_WINDOW:Hide()
-    uiMainWindow.windowHideBehaviour = BM2INTENT_KEEP_CLOSED
+    mainwindowModule.windowHideBehaviour = BM2INTENT_KEEP_CLOSED
     taskList:Scan(reason)
   end
 end
 
 --- Show the addon window; Save user intent to keep the window open
-function uiMainWindow:ShowWindow(tab)
+function mainwindowModule:ShowWindow(tab)
   if not InCombatLockdown() then
     if not BM2_MAIN_WINDOW:IsVisible() then
       BM2_MAIN_WINDOW:Show()
-      uiMainWindow.windowHideBehaviour = BM2INTENT_KEEP_OPEN
+      mainwindowModule.windowHideBehaviour = BM2INTENT_KEEP_OPEN
     else
       Bm2Addon.OnCloseClick()
     end
@@ -93,22 +97,22 @@ function uiMainWindow:ShowWindow(tab)
   end
 end
 
-function uiMainWindow.ToggleWindow()
+function mainwindowModule.ToggleWindow()
   local reason = "toggle window"
 
   if BM2_MAIN_WINDOW:IsVisible() then
-    uiMainWindow:HideWindow(reason)
+    mainwindowModule:HideWindow(reason)
   else
     taskList:Scan(reason)
-    uiMainWindow:ShowWindow()
+    mainwindowModule:ShowWindow()
   end
 end
 
 ---Call this to suggest opening window, unless user closed it with a X button
-function uiMainWindow.AutoOpen()
+function mainwindowModule.AutoOpen()
   if not InCombatLockdown() and Bm2Addon.db.char.autoOpen then
-    if not BM2_MAIN_WINDOW:IsVisible() and uiMainWindow.windowHideBehaviour ~= "keepClosed" then
-      uiMainWindow.windowHideBehaviour = BM2INTENT_AUTO_OPEN
+    if not BM2_MAIN_WINDOW:IsVisible() and mainwindowModule.windowHideBehaviour ~= "keepClosed" then
+      mainwindowModule.windowHideBehaviour = BM2INTENT_AUTO_OPEN
       BM2_MAIN_WINDOW:Show()
       bm2ui.SelectTab(BM2_MAIN_WINDOW, 1)
     end
@@ -116,32 +120,32 @@ function uiMainWindow.AutoOpen()
 end
 
 ---Call this to suggest closing the window, unless user opened it explicitly with a command or a key
-function uiMainWindow.AutoClose()
+function mainwindowModule.AutoClose()
   if not InCombatLockdown() and Bm2Addon.db.char.autoOpen then
     if BM2_MAIN_WINDOW:IsVisible() then
-      if uiMainWindow.windowHideBehaviour ~= BM2INTENT_KEEP_OPEN then
+      if mainwindowModule.windowHideBehaviour ~= BM2INTENT_KEEP_OPEN then
         BM2_MAIN_WINDOW:Hide()
-        uiMainWindow.windowHideBehaviour = BM2INTENT_AUTO_CLOSED
+        mainwindowModule.windowHideBehaviour = BM2INTENT_AUTO_CLOSED
       end
-    elseif uiMainWindow.windowHideBehaviour ~= BM2INTENT_KEEP_OPEN then
-      uiMainWindow.windowHideBehaviour = BM2INTENT_AUTO_CLOSED
+    elseif mainwindowModule.windowHideBehaviour ~= BM2INTENT_KEEP_OPEN then
+      mainwindowModule.windowHideBehaviour = BM2INTENT_AUTO_CLOSED
     end
   end
 end
 
 ---If the window was force-closed, allow it to auto open again
 ---This is called from combat end
-function uiMainWindow.AllowAutoOpen()
+function mainwindowModule.AllowAutoOpen()
   if not InCombatLockdown() and Bm2Addon.db.char.autoOpen then
-    if uiMainWindow.windowHideBehaviour == BM2INTENT_KEEP_CLOSED then
-      uiMainWindow.windowHideBehaviour = BM2INTENT_AUTO_CLOSED
+    if mainwindowModule.windowHideBehaviour == BM2INTENT_KEEP_CLOSED then
+      mainwindowModule.windowHideBehaviour = BM2INTENT_AUTO_CLOSED
     end
   end
 end
 
 ---@param t string Display text on cast button
 ---@param enable boolean Enable or disable the button
-function uiMainWindow:CastButton(t, enable)
+function mainwindowModule:CastButton(t, enable)
   -- not really a necessary check but for safety
   if InCombatLockdown()
       or BM2_TASKS_TAB_CAST_BUTTON == nil
@@ -158,24 +162,60 @@ function uiMainWindow:CastButton(t, enable)
   end
 end
 
----UpdateSpellTabs - update spells in the spell tabs
-function uiMainWindow:UpdateSpellTabs()
-  -- InCombat Protection is checked by the caller (Update***Tab)
-  if BOM.SelectedSpells == nil then
-    return
+---@param buff Bm2BuffDefinition
+local function bm2CreateTabRow(buff)
+  Bm2Addon:Print("create tab row for " .. buff.buffId)
+end
+
+---Filter all known spells through current player spellbook
+local function bm2CreateSpellsTab()
+  for buffIndex, buffId in ipairs(profile.active.selectedBuffs) do
+    local buff = spellsDb.allPossibleBuffs[buffId]
+    if buff and buff:IsClassBuff() then
+      bm2CreateTabRow(buff)
+    end
+  end
+end
+
+local function bm2CreateConsumesTab()
+  for buffIndex, buffId in ipairs(profile.active.selectedBuffs) do
+    local buff = spellsDb.allPossibleBuffs[buffId]
+    if buff and buff:IsConsumableBuff() then
+      bm2CreateTabRow(buff)
+    end
+  end
+end
+
+---Add spell cancel buttons for all spells in CancelBuffs
+---(and CustomCancelBuffs which user can add manually in the config file)
+local function bm2CreateSettingsTab()
+  for i, spell in ipairs(BOM.CancelBuffs) do
+    row_builder.dx = 2
+
+    bomAddSpellCancelRow(spell, row_builder)
+
+    row_builder.dy = 2
   end
 
+  if row_builder.prev_control then
+    bomFillBottomSection(row_builder)
+  end
+end
+
+---UpdateSpellTabs - update spells in the spell tabs
+function mainwindowModule:UpdateSpellTabs()
   if InCombatLockdown() then
     return
   end
 
-  if not BOM.SpellTabsCreatedFlag then
-    BOM.MyButtonHideAll()
+  if not mainwindowModule.spellTabsCreatedFlag then
+    bm2ui:HideAllManagedFrames()
 
-    local is_horde = (UnitFactionGroup("player")) == "Horde"
-    bomCreateTab(is_horde)
+    bm2CreateSpellsTab()
+    bm2CreateConsumesTab()
+    bm2CreateSettingsTab()
 
-    BOM.SpellTabsCreatedFlag = true
+    mainwindowModule.spellTabsCreatedFlag = true
   end
 
   local _className, self_class_name, _classId = UnitClass("player")

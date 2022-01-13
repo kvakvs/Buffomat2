@@ -27,7 +27,7 @@ Bm2Module.Import = Bm2Module.DeclareModule
 ---module:EarlyModuleInit (called early on startup)
 ---module:LateModuleInit (called late on startup, after entered world)
 function Bm2Module.CallInEachModule(fnName, context)
-  for _name, module in moduleIndex do
+  for _name, module in pairs(moduleIndex) do
     if module.fnName then
       module:fnName(context)
     end
