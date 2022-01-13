@@ -28,6 +28,9 @@ spellsDb.buffReverseLookup = {} -- for finding buff defs by spellid
 ---@return Bm2BuffDefinition
 function spellsDb:AddBuff(buffId)
   local newBuff = buffDef:New(buffId) ---@type Bm2BuffDefinition
+  if spellsDb.allPossibleBuffs[buffId] then
+    Bm2Addon:Print("Duplicate buffid=" .. buffId .. " please fix")
+  end
   spellsDb.allPossibleBuffs[buffId] = newBuff
   return newBuff
 end

@@ -80,6 +80,7 @@ function druid:Spells()
 
   spellsDb:AddBuff("buff_treeoflife"):SelfOnly():ShapeshiftFormId(2)
           :SingleBuff(spellDef:New("tree_of_life", 33891, true))
+          :Sort(buffDef.SEQ_LATE)
 
   -- Special code: This will disable herbalism and mining tracking in Cat Form
   spellsDb:AddBuff("buff_trackhumanoids"):SelfOnly():DefaultEnabled()

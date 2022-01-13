@@ -17,7 +17,7 @@ local engine = Bm2Module.Import("Engine")
 ---@field buffType string Special handling for certain types - Enum buffDefModule.BUFFTYPE_*
 ---@field shapeshiftFormId number|nil Allows to check whether user is already in that shapeshift
 ---@field requiresShapeshiftFormId number|nil Requires player to be in this form
----@field suggestedPriority number|nil Suggests when the buff should be prioritized, 0=asap, 100=anytime, or as 1000=late as possible
+---@field sort number|nil Suggests when the buff should be prioritized, 0=asap, 100=anytime, or as 1000=late as possible
 local classBuffDef = {}
 classBuffDef.__index = classBuffDef
 
@@ -25,6 +25,10 @@ buffDefModule.BUFFTYPE_RESURRECTION = "resurrection" -- someone is dead
 buffDefModule.BUFFTYPE_ITEM_USE = "item_use" -- right click an item
 buffDefModule.BUFFTYPE_ITEM_TARGET_USE = "item_target_use" -- target someone then right click
 buffDefModule.BUFFTYPE_TRACKING = "tracking" -- enable via tracking API
+
+buffDefModule.SEQ_EARLY = 0
+buffDefModule.SEQ_NORMAL = 100
+buffDefModule.SEQ_LATE = 1000
 
 ---@return Bm2BuffDefinition
 function buffDefModule:New(buffId)
@@ -35,6 +39,7 @@ function buffDefModule:New(buffId)
   fields.defaultOn = false
   fields.singleBuff = {}
   fields.groupBuff = {}
+  fields.sort = buffDefModule.SEQ_NORMAL
 
   return fields
 end
@@ -137,11 +142,11 @@ function classBuffDef:RequiresShapeshiftFormId(formId)
   return self
 end
 
----Suggested priority: High=0, Normal=100, Last=1000
+---Sorting key, small numbers first, big numbers late
 ---@param p number
 ---@return Bm2BuffDefinition
-function classBuffDef:SuggestedPriority(p)
-  self.suggestedPriority = p
+function classBuffDef:Sort(p)
+  self.sort = p
   return self
 end
 
