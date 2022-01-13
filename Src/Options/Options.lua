@@ -1,5 +1,7 @@
 ---@class Bm2OptionsModule
 local options = Bm2Module.DeclareModule("Options")
+---@type Bm2ProfileModule
+local profile = Bm2Module.Import("Profile")
 
 ---@type Bm2TranslationModule
 local translation = Bm2Module.Import("Translation")
@@ -285,9 +287,6 @@ function options:GetDefaults()
     char   = {
       -- TODO: durationCache has names populated from the known spells when updating spells
       durationCache       = {}, -- [spellname] => GetTime(), for spells known to Buffomat
-      cancelBuffs         = {}, -- list(buffId) buff names selected by the user to cancel
-
-      doNotScanGroup      = {}, -- [number] => true; raidgroups which user clicked to not scan.
 
       mainWindowX         = 0,
       mainWindowY         = 0,
@@ -296,18 +295,18 @@ function options:GetDefaults()
 
       autoShow            = true,
       buffCurrentTarget   = true,
-      scanInRestAreas     = true,
-      scanInOpenWorld     = true,
-      scanInDungeons      = true,
-      scanInPvp           = true,
-      scanInStealth       = false,
-      scanWhileMounted    = false,
-      preventPvpTag       = true,
-      autoDismountGround  = true,
-      autoDismountFlying  = false,
-      autoStand           = true,
-      autoLeaveShapeshift = true,
-      autoCrusaderAura    = true,
+
+      --
+      -- Profile management and multiple profiles for the player
+      --
+      useProfiles         = false,
+      forceProfile        = "",
+      profile = {
+        solo = profile:NewProfile(),
+        raid = profile:NewProfile(),
+        party = profile:NewProfile(),
+        pvp = profile:NewProfile(),
+      },
     },
   }
 end

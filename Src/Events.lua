@@ -246,13 +246,13 @@ local function bm2event_Bag()
   bm2bag:Invalidate()
 end
 
-function bm2events.RegisterEarlyEvents()
+function bm2events:RegisterEarlyEvents()
   --Bm2Addon:RegisterEvent("PLAYER_LOGIN", function()
   Bm2Addon:RegisterEvent("PLAYER_ENTERING_WORLD", function() Bm2Addon:OnInitializeStep2() end)
   Bm2Addon:RegisterEvent("LOADING_SCREEN_DISABLED", function() Bm2Addon:OnInitializeStep2() end)
 end
 
-function bm2events.RegisterLateEvents()
+function bm2events:RegisterLateEvents()
   -- Events which might change active state of Buffomat
   Bm2Addon:RegisterEvent("ZONE_CHANGED", function()
     engine:SetForceUpdate("zone changed")
@@ -310,4 +310,12 @@ function bm2events.RegisterLateEvents()
   for i, event in ipairs(EVT_BAG_CHANGED) do
     Bm2Addon:RegisterEvent(event, bm2event_Bag)
   end
+end
+
+function bm2events:EarlyModuleInit()
+  bm2events:RegisterEarlyEvents()
+end
+
+function bm2events:LateModuleInit()
+  bm2events:RegisterLateEvents()
 end

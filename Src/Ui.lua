@@ -1,9 +1,13 @@
 local TOCNAME, _ = ...
 
 ---@class Bm2UiModule
+---@field popupDynamic table Popup menu on minimap icon and on the addon window
 local bm2ui = Bm2Module.DeclareModule("Ui")
+
 ---@type Bm2ConstModule
 local bm2const = Bm2Module.Import("Const")
+---@type Bm2PopupModule
+local popup = Bm2Module.Import("UiPopup")
 ---@type Bm2TranslationModule
 local translation = Bm2Module.Import("Translation")
 local function _t(key)
@@ -207,4 +211,15 @@ function bm2ui.EnableSizing(frame, border, OnStart, OnStop)
   bm2CreateSizeBorder(frame, "BOTTOMRIGHT", "BOTTOMRIGHT", 0, 0,
       "BOTTOMRIGHT", -border, border, "Interface\\CURSOR\\UI-Cursor-SizeRight",
       0, OnStart, OnStop)
+end
+
+---Creates a string which will display a picture in a FontString
+---@param texture string - path to UI texture file (for example can come from
+---  GetContainerItemInfo(bag, slot) or spell info etc
+function bm2ui:FormatTexture(texture)
+  return string.format(bm2const.IconFormat, texture)
+end
+
+function bm2ui:LateModuleInit()
+  bm2ui.popupDynamic = popup:CreatePopup(function() end) -- BOM.OptionsUpdate
 end

@@ -1,6 +1,6 @@
 ---Buff engine
 ---Stores the current buffs, skip lists, spell knowledge, etc.
-
+---Contains code for buff applying, canceling and tracking
 ---@class Bm2EngineModule
 ---@field activeBuffs table<string, table<number, number>> Remaining durations on buffs on target, indexed by buffId, then by targetname, value is time
 ---@field selectedSpells table<string, Bm2BuffDefinition> Buff names selected by the user
@@ -14,6 +14,8 @@ engine.selectedSpells = {}
 
 ---@type Bm2SpellsDbModule
 local spellsDb = Bm2Module.Import("SpellsDb")
+---@type Bm2ProfileModule
+local profile = Bm2Module.Import("Profile")
 ---@type Bm2TranslationModule
 local _t = Bm2Module.Import("Translation")
 
@@ -29,15 +31,9 @@ function engine:SetForceUpdate(reason)
   engine.forceUpdate = reason
 end
 
----Request buffs scan and refresh the task list
----@param reason string|nil
-function engine:ScanBuffs(reason)
-  engine.forceUpdate = nil
-end
-
 ---Go through cancel buff preferences and cancel the buffs found on the player
 function engine:CancelBuffs()
-  for _index, buffId in ipairs(Bm2Addon.db.char.cancelBuffs) do
+  for _index, buffId in ipairs(profile.active.cancelBuffs) do
     local buff = spellsDb.allPossibleBuffs[buffId]
 
     if buff then

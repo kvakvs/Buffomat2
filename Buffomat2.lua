@@ -23,12 +23,12 @@ local spellsDb = Bm2Module.Import("SpellsDb")
 local uiMainWindow = Bm2Module.Import("UiMainWindow")
 
 local function bm2MakeOptions()
-  return  {
-    name = "Buffomat 2 Settings",
+  return {
+    name        = "Buffomat 2 Settings",
     --handler = Questie,
-    type = "group",
+    type        = "group",
     childGroups = "tab",
-    args = {
+    args        = {
       general_tab = options:MakeGeneralTab(),
     }
   }
@@ -37,13 +37,15 @@ end
 function bm2:OnInitialize()
   bm2.db = LibStub("AceDB-3.0"):New("Bm2Conf", options:GetDefaults(), true)
 
-  bm2events.RegisterEarlyEvents()
+  Bm2Module.CallInEachModule("EarlyModuleInit")
 end
 
 local bm2Step2Done = false
 
 function bm2:OnInitializeStep2()
-  if (bm2Step2Done) then return end
+  if (bm2Step2Done) then
+    return
+  end
   bm2Step2Done = true
 
   bm2:RegisterChatCommand("bm2", "HandleSlash")
@@ -56,8 +58,9 @@ function bm2:OnInitializeStep2()
   spellsDb:InitSpellsDb()
   -- spellsDb:FilterAvailableSpells() -- no need to call here, it will be called on character enter world
 
-  bm2ui.SetupMainWindow()
-  bm2events.RegisterLateEvents()
+  bm2ui:SetupMainWindow()
+
+  Bm2Module.CallInEachModule("LateModuleInit")
 end
 
 function bm2:HandleSlash(input)

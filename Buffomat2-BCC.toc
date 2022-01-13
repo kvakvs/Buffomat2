@@ -19,6 +19,7 @@ Src/Const.lua
 # Tooltip and UI: load them before XMLs - they are using it
 Src/Ui.lua
 Src/UiMainWindow.lua
+Src/UiPopup.lua
 Src/Tooltip.lua
 
 Xml/embeds.xml
@@ -26,6 +27,7 @@ Xml/Buffomat2.xml
 
 Src/Translation.lua
 Src/Engine.lua
+Src/TaskList.lua
 Src/SpellDef.lua
 Src/ItemDef.lua
 Src/BuffDef.lua
@@ -36,5 +38,7 @@ Src/Bag.lua
 Src/Events.lua
 Src/Slash.lua
 Src/Options/Options.lua
+Src/Macro.lua
+Src/Profile.lua
 
 Buffomat2.lua

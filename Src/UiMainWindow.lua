@@ -8,6 +8,8 @@ local engine = Bm2Module.Import("Engine")
 local _t = Bm2Module.Import("Translation")
 ---@type Bm2ConstModule
 local bm2const = Bm2Module.Import("Const")
+---@type Bm2TaskListModule
+local taskList = Bm2Module.Import("TaskList")
 
 local BM2INTENT_AUTO_CLOSED = "autoClosed"
 local BM2INTENT_AUTO_OPEN = "autoOpen"
@@ -37,12 +39,15 @@ local function bm2LoadWindowPosition()
 end
 
 ---Set up the main window: dragging, sizing, load and save the position
-function bm2ui.SetupMainWindow()
+function bm2ui:SetupMainWindow()
   BM2_MAIN_WINDOW_TITLE:SetText(_t('Buffomat') .. " - " .. _t('Solo'))
   bm2ui.EnableMoving(BM2_MAIN_WINDOW, bm2SaveWindowPosition)
 
-  bm2ui.AddTab(BM2_MAIN_WINDOW, _t('Tasks'), BM2_TASKS_TAB, true)
-  bm2ui.AddTab(BM2_MAIN_WINDOW, _t('Spells'), BM2_SPELL_TAB, true)
+  -- TODO: Class icon for class spells; Bottle icon for consumes; Weapons icon for weapons tab
+  bm2ui.AddTab(BM2_MAIN_WINDOW, _t('Task'), BM2_TASKS_TAB, true) -- task list
+  bm2ui.AddTab(BM2_MAIN_WINDOW, _t('S'), BM2_SPELL_TAB, true) -- spells
+  bm2ui.AddTab(BM2_MAIN_WINDOW, _t('C'), BM2_SPELL_TAB, true) -- consumes
+  bm2ui.AddTab(BM2_MAIN_WINDOW, _t('Set'), BM2_SPELL_TAB, true) -- settings
   bm2ui.SelectTab(BM2_MAIN_WINDOW, 1)
 
   bm2LoadWindowPosition()
@@ -69,7 +74,7 @@ function uiMainWindow:HideWindow(reason)
   if BM2_MAIN_WINDOW:IsVisible() then
     BM2_MAIN_WINDOW:Hide()
     uiMainWindow.windowHideBehaviour = BM2INTENT_KEEP_CLOSED
-    engine:ScanBuffs(reason)
+    taskList:Scan(reason)
   end
 end
 
@@ -94,7 +99,7 @@ function uiMainWindow.ToggleWindow()
   if BM2_MAIN_WINDOW:IsVisible() then
     uiMainWindow:HideWindow(reason)
   else
-    engine:ScanBuffs(reason)
+    taskList:Scan(reason)
     uiMainWindow:ShowWindow()
   end
 end
@@ -132,4 +137,62 @@ function uiMainWindow.AllowAutoOpen()
       uiMainWindow.windowHideBehaviour = BM2INTENT_AUTO_CLOSED
     end
   end
+end
+
+---@param t string Display text on cast button
+---@param enable boolean Enable or disable the button
+function uiMainWindow:CastButton(t, enable)
+  -- not really a necessary check but for safety
+  if InCombatLockdown()
+      or BM2_TASKS_TAB_CAST_BUTTON == nil
+      or BM2_TASKS_TAB_CAST_BUTTON.SetText == nil then
+    return
+  end
+
+  BM2_TASKS_TAB_CAST_BUTTON:SetText(t)
+
+  if enable then
+    BM2_TASKS_TAB_CAST_BUTTON:Enable()
+  else
+    BM2_TASKS_TAB_CAST_BUTTON:Disable()
+  end
+end
+
+---UpdateSpellTabs - update spells in the spell tabs
+function uiMainWindow:UpdateSpellTabs()
+  -- InCombat Protection is checked by the caller (Update***Tab)
+  if BOM.SelectedSpells == nil then
+    return
+  end
+
+  if InCombatLockdown() then
+    return
+  end
+
+  if not BOM.SpellTabsCreatedFlag then
+    BOM.MyButtonHideAll()
+
+    local is_horde = (UnitFactionGroup("player")) == "Horde"
+    bomCreateTab(is_horde)
+
+    BOM.SpellTabsCreatedFlag = true
+  end
+
+  local _className, self_class_name, _classId = UnitClass("player")
+
+  for i, spell in ipairs(BOM.SelectedSpells) do
+    if type(spell.onlyUsableFor) == "table"
+        and not tContains(spell.onlyUsableFor, self_class_name) then
+      -- skip
+    else
+      bomUpdateSelectedSpell(spell)
+    end
+  end
+
+  for _i, spell in ipairs(BOM.CancelBuffs) do
+    spell.frames.Enable:SetVariable(BOM.CurrentProfile.CancelBuff[spell.ConfigID], "Enable")
+  end
+
+  --Create small toggle button to the right of [Cast <spell>] button
+  BOM.CreateSingleBuffButton(BomC_ListTab) --maybe not created yet?
 end
