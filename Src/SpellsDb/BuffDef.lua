@@ -1,5 +1,5 @@
 ---@class Bm2BuffDefModule
-local buffDefModule = Bm2Module.DeclareModule("BuffDef")
+local buffDefModule = Bm2Module.DeclareModule("SpellsDb/BuffDef")
 
 local engine = Bm2Module.Import("Engine")---@type Bm2EngineModule
 
@@ -21,6 +21,7 @@ local engine = Bm2Module.Import("Engine")---@type Bm2EngineModule
 local classBuffDef = {}
 classBuffDef.__index = classBuffDef
 
+buffDefModule.BUFFTYPE_SPELL = "spell" -- simple cast
 buffDefModule.BUFFTYPE_RESURRECTION = "resurrection" -- someone is dead
 buffDefModule.BUFFTYPE_ITEM_USE = "item_use" -- right click an item
 buffDefModule.BUFFTYPE_ITEM_TARGET_USE = "item_target_use" -- target someone then right click
@@ -33,7 +34,7 @@ buffDefModule.SEQ_LATE = 1000
 ---Returns true if this buff is a class ability, spell or tracking buff
 ---@return boolean
 function classBuffDef:IsClassBuff()
-  return self.buffType == nil
+  return self.buffType == buffDefModule.BUFFTYPE_SPELL
       or self.buffType == buffDefModule.BUFFTYPE_TRACKING
       or self.buffType == buffDefModule.BUFFTYPE_RESURRECTION
 end
@@ -55,6 +56,7 @@ function buffDefModule:New(buffId)
   fields.singleBuff = {}
   fields.groupBuff = {}
   fields.sort = buffDefModule.SEQ_NORMAL
+  fields.buffType = buffDefModule.BUFFTYPE_SPELL
 
   return fields
 end

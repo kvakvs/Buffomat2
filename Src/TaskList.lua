@@ -20,13 +20,13 @@ local profileModule = Bm2Module.Import("Profile")---@type Bm2ProfileModule
 ---to fall to your death.
 local function bm2IsFlying()
   if constModule.IsTBC then
-    return IsFlying() and not Bm2Addon.db.char.autoDismountFlying
+    return IsFlying() and not profileModule.active.autoDismountFlying
   end
   return false
 end
 
 local function bm2IsMountedAndCrusaderAuraRequired()
-  return Bm2Addon.db.char.autoCrusaderAura -- if setting enabled
+  return profileModule.active.autoCrusaderAura -- if setting enabled
       and IsSpellKnown(constModule.spellId.PALADIN_CRUSADERAURA) -- and has the spell
       and (IsMounted() or bm2IsFlying()) -- and flying or mounted otherwise
       and GetShapeshiftForm() ~= constModule.shapeshiftForm.PALADIN_CRUSADERAURA -- and not crusader aura
@@ -47,7 +47,7 @@ local function bm2IsActive()
   local _inInstance, instanceType = IsInInstance()
 
   if instanceType == "pvp" or instanceType == "arena" then
-    if not Bm2Addon.db.char.scanInPvp then
+    if not profileModule.active.scanInPvp then
       return false, _t("Disabled: In a PvP zone")
     end
 
@@ -55,27 +55,27 @@ local function bm2IsActive()
       or instanceType == "raid"
       or instanceType == "scenario"
   then
-    if not Bm2Addon.db.char.scanInDungeons then
+    if not profileModule.active.scanInDungeons then
       return false, _t("Disabled: In a dungeon")
     end
   else
-    if not Bm2Addon.db.char.scanInOpenWorld then
+    if not profileModule.active.scanInOpenWorld then
       return false, _t("Disabled: In open world")
     end
   end
 
   -- Cancel buff tasks if is in a resting area, and option to scan is not set
-  if not Bm2Addon.db.char.scanInRestAreas and IsResting() then
+  if not profileModule.active.scanInRestAreas and IsResting() then
     return false, _t("Disabled: In a rest area")
   end
 
   -- Cancel buff task scan while mounted
-  if not Bm2Addon.db.char.scanWhileMounted and IsMounted() then
+  if not profileModule.active.scanWhileMounted and IsMounted() then
     return false, _t("Disabled: On a mount")
   end
 
   -- Cancel buff tasks if is in stealth, and option to scan is not set
-  if not Bm2Addon.db.char.scanInStealth and IsStealthed() then
+  if not profileModule.active.scanInStealth and IsStealthed() then
     return false, _t("Disabled: In stealth")
   end
 
@@ -177,7 +177,7 @@ function taskListModule:Scan_Step2()
       --Clear the cast button
       bomCastButton(L.MsgNothingToDo, true)
 
-      for spellIndex, spell in ipairs(BOM.SelectedSpells) do
+      for spellIndex, spell in ipairs(profileModule.active.selectedBuffs) do
         if #spell.SkipList > 0 then
           wipe(spell.SkipList)
         end
@@ -194,7 +194,7 @@ function taskListModule:Scan_Step2()
           bomCastButton(ERR_SPELL_OUT_OF_RANGE, false)
           local skipreset = false
 
-          for spellIndex, spell in ipairs(BOM.SelectedSpells) do
+          for spellIndex, spell in ipairs(profileModule.active.selectedBuffs) do
             if #spell.SkipList > 0 then
               skipreset = true
               wipe(spell.SkipList)
@@ -220,7 +220,7 @@ end
 function taskListModule:Scan(caller)
   Bm2Addon:Print("Scan (called from " .. caller .. ")")
 
-  if next(engineModule.selectedSpells) == nil then
+  if next(profileModule.active.selectedBuffs) == nil then
     -- No selected spells, nothing to do
     return
   end

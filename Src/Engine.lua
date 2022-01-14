@@ -39,7 +39,7 @@ end
 
 ---Reset the list of failed target for each spell we have configured
 function engineModule:ClearSkipList()
-  for _spellIndex, spell in ipairs(engineModule.selectedSpells) do
+  for _spellIndex, spell in ipairs(profileModule.active.selectedBuffs) do
     if spell.failedTargetsList then
       wipe(spell.failedTargetsList)
     end
@@ -70,11 +70,11 @@ end
 function engineModule:MaybeResetWatchGroups()
   if UnitPlayerOrPetInParty("player") == false then
     -- We have left the party - can clear monitored groups
-    local need_to_report = next(Bm2Addon.db.char.doNotScanGroup) ~= nil
+    local need_to_report = next(profileModule.active.doNotScanGroup) ~= nil
 
     -- TODO: Update checkboxes on watch groups
     -- TODO: Update buff tab text (buff G1-8)
-    wipe(Bm2Addon.db.char.doNotScanGroup)
+    wipe(profileModule.active.doNotScanGroup)
 
     --BOM.UpdateBuffTabText()
 

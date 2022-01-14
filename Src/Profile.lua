@@ -5,13 +5,14 @@ local profileModule = Bm2Module.DeclareModule("Profile")
 
 local spellsDb = Bm2Module.Import("SpellsDb") ---@type Bm2SpellsDbModule
 
-function profileModule:EarlyModuleInit()
-  profileModule.activeProfileName = nil
-  profileModule.active = profileModule:NewProfile() -- some dummy profile to prevent script errors
+function profileModule:LateModuleInit()
+  Bm2Addon:Print("Profile:LMI")
+  profileModule.active = { }
+  profileModule:Activate(profileModule:ChooseProfile())
 end
 
 ---@class Bm2Profile
----@field selectedBuffs table<number, string> buffIds to activate
+---@field selectedBuffs table<number, string> buffIds to watch and rebuff
 ---@field cancelBuffs table<number, string> buffIds to cancel on combat start
 ---@field doNotScanGroup table<number, boolean> raidgroups which user clicked to not scan.
 ---@field scanInRestAreas boolean
@@ -32,7 +33,7 @@ function profileModule:NewProfile()
   return {
     selectedBuffs       = profileModule:GetDefaultEnabledBuffs(),
     cancelBuffs         = {}, -- list(buffId)
-    scanGroup           = {}, -- [number] => true
+    doNotScanGroup      = {}, -- [number] => true
     scanInRestAreas     = true,
     scanInOpenWorld     = true,
     scanInDungeons      = true,

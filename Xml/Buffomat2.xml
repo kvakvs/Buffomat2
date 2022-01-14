@@ -294,6 +294,100 @@
           </ScrollFrame>
         </Frames>
       </Frame>
+
+      <!--
+       ConsumeTab
+       Contains consumable items, elixirs, buffs, weapon enchantments etc.
+       -->
+      <Frame name="BM2_CONSUMES_TAB" hidden="false">
+        <Anchors>
+          <Anchor point="TOPLEFT">
+            <Offset>
+              <AbsDimension x="8" y="-30"/>
+            </Offset>
+          </Anchor>
+          <Anchor point="BOTTOMRIGHT">
+            <Offset>
+              <AbsDimension x="-8" y="8"/>
+            </Offset>
+          </Anchor>
+        </Anchors>
+        <Frames>
+
+          <ScrollFrame name="$parent_Scroll"
+                       inherits="UIPanelScrollFrameTemplate">
+            <Anchors>
+              <Anchor point="TOPLEFT">
+                <Offset>
+                  <AbsDimension y="-2" x="2"/>
+                </Offset>
+              </Anchor>
+              <Anchor point="BOTTOMRIGHT">
+                <Offset>
+                  <AbsDimension y="2" x="-22"/>
+                </Offset>
+              </Anchor>
+            </Anchors>
+            <Size>
+              <AbsDimension x="270" y="100"/>
+            </Size>
+            <ScrollChild>
+              <Frame name="$parent_Child">
+                <Size>
+                  <AbsDimension x="30" y="30"/>
+                </Size>
+              </Frame>
+            </ScrollChild>
+          </ScrollFrame>
+        </Frames>
+      </Frame>
+
+      <!--
+       SettingsTab
+       Contains raid and group scanning settings applicable to the current profile
+       -->
+      <Frame name="BM2_SETTINGS_TAB" hidden="false">
+        <Anchors>
+          <Anchor point="TOPLEFT">
+            <Offset>
+              <AbsDimension x="8" y="-30"/>
+            </Offset>
+          </Anchor>
+          <Anchor point="BOTTOMRIGHT">
+            <Offset>
+              <AbsDimension x="-8" y="8"/>
+            </Offset>
+          </Anchor>
+        </Anchors>
+        <Frames>
+
+          <ScrollFrame name="$parent_Scroll"
+                       inherits="UIPanelScrollFrameTemplate">
+            <Anchors>
+              <Anchor point="TOPLEFT">
+                <Offset>
+                  <AbsDimension y="-2" x="2"/>
+                </Offset>
+              </Anchor>
+              <Anchor point="BOTTOMRIGHT">
+                <Offset>
+                  <AbsDimension y="2" x="-22"/>
+                </Offset>
+              </Anchor>
+            </Anchors>
+            <Size>
+              <AbsDimension x="270" y="100"/>
+            </Size>
+            <ScrollChild>
+              <Frame name="$parent_Child">
+                <Size>
+                  <AbsDimension x="30" y="30"/>
+                </Size>
+              </Frame>
+            </ScrollChild>
+          </ScrollFrame>
+        </Frames>
+      </Frame>
     </Frames>
 
     <Scripts>

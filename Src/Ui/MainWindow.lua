@@ -4,19 +4,18 @@
 local mainwindowModule = Bm2Module.DeclareModule("Ui/MainWindow")
 
 local _t = Bm2Module.Import("Translation") ---@type Bm2TranslationModule
-local bm2const = Bm2Module.Import("Const") ---@type Bm2ConstModule
-local taskList = Bm2Module.Import("TaskList") ---@type Bm2TaskListModule
-local profile = Bm2Module.Import("Profile") ---@type Bm2ProfileModule
+local constModule = Bm2Module.Import("Const") ---@type Bm2ConstModule
+local taskListModule = Bm2Module.Import("TaskList") ---@type Bm2TaskListModule
+local profileModule = Bm2Module.Import("Profile") ---@type Bm2ProfileModule
 local spellsDb = Bm2Module.Import("SpellsDb") ---@type Bm2SpellsDbModule
+local rowbuilderModule = Bm2Module.Import("Ui/RowBuilder") ---@type Bm2UiRowBuilderModule
+local uiModule = Bm2Module.Import("Ui") ---@type Bm2UiModule
 
 local BM2INTENT_AUTO_CLOSED = "autoClosed"
 local BM2INTENT_AUTO_OPEN = "autoOpen"
 local BM2INTENT_KEEP_CLOSED = "keepClosed"
 local BM2INTENT_KEEP_OPEN = "keepOpen"
 mainwindowModule.windowHideBehaviour = BM2INTENT_AUTO_CLOSED
-
----@type Bm2UiModule
-local bm2ui = Bm2Module.Import("Ui")
 
 local function bm2SaveWindowPosition()
   Bm2Addon.db.char.mainWindowX = BM2_MAIN_WINDOW:GetLeft()
@@ -37,21 +36,21 @@ local function bm2LoadWindowPosition()
 end
 
 ---Set up the main window: dragging, sizing, load and save the position
-function bm2ui:SetupMainWindow()
+function uiModule:SetupMainWindow()
   BM2_MAIN_WINDOW_TITLE:SetText(_t('Buffomat') .. " - " .. _t('Solo'))
-  bm2ui.EnableMoving(BM2_MAIN_WINDOW, bm2SaveWindowPosition)
+  uiModule.EnableMoving(BM2_MAIN_WINDOW, bm2SaveWindowPosition)
 
   -- TODO: Class icon for class spells; Bottle icon for consumes; Weapons icon for weapons tab
-  bm2ui.AddTab(BM2_MAIN_WINDOW, _t('Task'), BM2_TASKS_TAB, true) -- task list
-  bm2ui.AddTab(BM2_MAIN_WINDOW, _t('S'), BM2_SPELL_TAB, true) -- spells
-  bm2ui.AddTab(BM2_MAIN_WINDOW, _t('C'), BM2_SPELL_TAB, true) -- consumes
-  bm2ui.AddTab(BM2_MAIN_WINDOW, _t('Set'), BM2_SPELL_TAB, true) -- settings
-  bm2ui.SelectTab(BM2_MAIN_WINDOW, 1)
+  uiModule.AddTab(BM2_MAIN_WINDOW, _t('Task'), BM2_TASKS_TAB, true) -- task list
+  uiModule.AddTab(BM2_MAIN_WINDOW, _t('S'), BM2_SPELL_TAB, true) -- spells
+  uiModule.AddTab(BM2_MAIN_WINDOW, _t('C'), BM2_SPELL_TAB, true) -- consumes
+  uiModule.AddTab(BM2_MAIN_WINDOW, _t('Set'), BM2_SPELL_TAB, true) -- settings
+  uiModule.SelectTab(BM2_MAIN_WINDOW, 1)
 
   bm2LoadWindowPosition()
 
   BM2_MAIN_WINDOW:SetMinResize(180, 90)
-  bm2ui.EnableSizing(BM2_MAIN_WINDOW, 8, nil, bm2SaveWindowPosition)
+  uiModule.EnableSizing(BM2_MAIN_WINDOW, 8, nil, bm2SaveWindowPosition)
 
   -- Set up buttons in the tasks tab
   local messageFrame = BM2_TASKS_TAB_MESSAGE_FRAME
@@ -64,7 +63,7 @@ function bm2ui:SetupMainWindow()
 
   local castButton = BM2_TASKS_TAB_CAST_BUTTON
   castButton:SetAttribute("type", "macro")
-  castButton:SetAttribute("macro", bm2const.MacroName)
+  castButton:SetAttribute("macro", constModule.MacroName)
 end
 
 ---Close window and set close reason to "user clicked close button"
@@ -72,7 +71,7 @@ function mainwindowModule:HideWindow(reason)
   if BM2_MAIN_WINDOW:IsVisible() then
     BM2_MAIN_WINDOW:Hide()
     mainwindowModule.windowHideBehaviour = BM2INTENT_KEEP_CLOSED
-    taskList:Scan(reason)
+    taskListModule:Scan(reason)
   end
 end
 
@@ -85,7 +84,7 @@ function mainwindowModule:ShowWindow(tab)
     else
       Bm2Addon.OnCloseClick()
     end
-    bm2ui.SelectTab(BM2_MAIN_WINDOW, tab or 1)
+    uiModule.SelectTab(BM2_MAIN_WINDOW, tab or 1)
   else
     Bm2Addon:Print(_t("Can't show window in combat"))
   end
@@ -97,7 +96,7 @@ function mainwindowModule.ToggleWindow()
   if BM2_MAIN_WINDOW:IsVisible() then
     mainwindowModule:HideWindow(reason)
   else
-    taskList:Scan(reason)
+    taskListModule:Scan(reason)
     mainwindowModule:ShowWindow()
   end
 end
@@ -108,7 +107,7 @@ function mainwindowModule.AutoOpen()
     if not BM2_MAIN_WINDOW:IsVisible() and mainwindowModule.windowHideBehaviour ~= "keepClosed" then
       mainwindowModule.windowHideBehaviour = BM2INTENT_AUTO_OPEN
       BM2_MAIN_WINDOW:Show()
-      bm2ui.SelectTab(BM2_MAIN_WINDOW, 1)
+      uiModule.SelectTab(BM2_MAIN_WINDOW, 1)
     end
   end
 end
@@ -156,26 +155,23 @@ function mainwindowModule:CastButton(t, enable)
   end
 end
 
----@param buff Bm2BuffDefinition
-local function bm2CreateTabRow(buff)
-  Bm2Addon:Print("create tab row for " .. buff.buffId)
-end
-
 ---Filter all known spells through current player spellbook
 local function bm2CreateSpellsTab()
-  for buffIndex, buffId in ipairs(profile.active.selectedBuffs) do
+  local rowBuilder = rowbuilderModule:New(BM2_SPELL_TAB)
+  for buffIndex, buffId in ipairs(profileModule.active.selectedBuffs) do
     local buff = spellsDb.allPossibleBuffs[buffId]
     if buff and buff:IsClassBuff() then
-      bm2CreateTabRow(buff)
+      rowBuilder:CreateTabRow(buff)
     end
   end
 end
 
 local function bm2CreateConsumesTab()
-  for buffIndex, buffId in ipairs(profile.active.selectedBuffs) do
+  local rowBuilder = rowbuilderModule:New(BM2_CONSUMES_TAB)
+  for buffIndex, buffId in ipairs(profileModule.active.selectedBuffs) do
     local buff = spellsDb.allPossibleBuffs[buffId]
     if buff and buff:IsConsumableBuff() then
-      bm2CreateTabRow(buff)
+      rowBuilder:CreateConsumableTabRow(buff)
     end
   end
 end
@@ -183,50 +179,146 @@ end
 ---Add spell cancel buttons for all spells in CancelBuffs
 ---(and CustomCancelBuffs which user can add manually in the config file)
 local function bm2CreateSettingsTab()
-  for i, spell in ipairs(BOM.CancelBuffs) do
-    row_builder.dx = 2
-
-    bomAddSpellCancelRow(spell, row_builder)
-
-    row_builder.dy = 2
+  local rowBuilder = rowbuilderModule:New(BM2_SETTINGS_TAB)
+  for i, buff in ipairs(spellsDb.allCancelBuffs) do
+    rowBuilder:CreateCancelTabRow(buff)
   end
 
-  if row_builder.prev_control then
-    bomFillBottomSection(row_builder)
-  end
+  -- TODO: Group watch checkbox row
+  --if row_builder.prev_control then
+  --  bomFillBottomSection(row_builder)
+  --end
 end
 
----UpdateSpellTabs - update spells in the spell tabs
+-- ---@param buff Bm2BuffDefinition
+--local function bm2UpdateSelectedBuff(buff)
+--  -- the pointer to spell in current BOM profile
+--  local profile_spell = BOM.CurrentProfile.Spell[spell.ConfigID]
+--
+--  spell.frames.Enable:SetVariable(profile_spell, "Enable")
+--
+--  if spell:HasClasses() then
+--    spell.frames.SelfCast:SetVariable(profile_spell, "SelfCast")
+--
+--    for ci, class in ipairs(BOM.Tool.Classes) do
+--      spell.frames[class]:SetVariable(profile_spell.Class, class)
+--
+--      if profile_spell.SelfCast then
+--        spell.frames[class]:Disable()
+--      else
+--        spell.frames[class]:Enable()
+--      end
+--    end -- for all class names
+--
+--    spell.frames["tank"]:SetVariable(profile_spell.Class, "tank")
+--    spell.frames["pet"]:SetVariable(profile_spell.Class, "pet")
+--
+--    if profile_spell.SelfCast then
+--      spell.frames["tank"]:Disable()
+--      spell.frames["pet"]:Disable()
+--    else
+--      spell.frames["tank"]:Enable()
+--      spell.frames["pet"]:Enable()
+--    end
+--
+--    --========================================
+--    local force_cast_button = spell.frames.ForceCastButton ---@type Control
+--    local exclude_button = spell.frames.ExcludeButton ---@type Control
+--
+--    if BOM.lastTarget ~= nil then
+--      -------------------------
+--      force_cast_button:Enable()
+--      bomUpdateForcecastTooltip(force_cast_button, profile_spell)
+--
+--      local spell_force = profile_spell.ForcedTarget
+--      local last_target = BOM.lastTarget
+--
+--      force_cast_button:SetScript("OnClick", function(self)
+--        if spell_force[last_target] == nil then
+--          BOM.Print(BOM.FormatTexture(BOM.ICON_TARGET_ON) .. " "
+--              .. L.MessageAddedForced .. ": " .. last_target)
+--          spell_force[last_target] = last_target
+--        else
+--          BOM.Print(BOM.FormatTexture(BOM.ICON_TARGET_ON) .. " "
+--              .. L.MessageClearedForced .. ": " .. last_target)
+--          spell_force[last_target] = nil
+--        end
+--        bomUpdateForcecastTooltip(self, profile_spell)
+--      end)
+--      -------------------------
+--      exclude_button:Enable()
+--      bomUpdateExcludeTargetsTooltip(exclude_button, profile_spell)
+--
+--      local spell_exclude = profile_spell.ExcludedTarget
+--      last_target = BOM.lastTarget
+--
+--      exclude_button:SetScript("OnClick", function(self)
+--        if spell_exclude[last_target] == nil then
+--          BOM.Print(BOM.FormatTexture(BOM.ICON_TARGET_EXCLUDE) .. " "
+--              .. L.MessageAddedExcluded .. ": " .. last_target)
+--          spell_exclude[last_target] = last_target
+--        else
+--          BOM.Print(BOM.FormatTexture(BOM.ICON_TARGET_EXCLUDE) .. " "
+--              .. L.MessageClearedExcluded .. ": " .. last_target)
+--          spell_exclude[last_target] = nil
+--        end
+--        bomUpdateExcludeTargetsTooltip(self, profile_spell)
+--      end)
+--
+--    else
+--      --======================================
+--      force_cast_button:Disable()
+--      BOM.Tool.TooltipText(
+--          force_cast_button,
+--          L.TooltipForceCastOnTarget .. "|n" .. L.TooltipSelectTarget
+--              .. bomForceTargetsTooltipText(profile_spell))
+--      --force_cast_button:SetVariable()
+--      ---------------------------------
+--      exclude_button:Disable()
+--      BOM.Tool.TooltipText(
+--          exclude_button,
+--          L.TooltipExcludeTarget .. "|n" .. L.TooltipSelectTarget
+--              .. bomExcludeTargetsTooltip(profile_spell))
+--      --exclude_button:SetVariable()
+--    end
+--  end -- end if has classes
+--
+--  if spell.isInfo and spell.allowWhisper then
+--    spell.frames.Whisper:SetVariable(profile_spell, "Whisper")
+--  end
+--
+--  if spell.type == "weapon" then
+--    spell.frames.MainHand:SetVariable(profile_spell, "MainHandEnable")
+--    spell.frames.OffHand:SetVariable(profile_spell, "OffHandEnable")
+--  end
+--
+--  if (spell.type == "tracking"
+--      or spell.type == "aura"
+--      or spell.type == "seal") and spell.needForm == nil
+--  then
+--    if (spell.type == "tracking" and BOM.CharacterState.LastTracking == spell.trackingIconId) or
+--        (spell.type == "aura" and spell.ConfigID == BOM.CurrentProfile.LastAura) or
+--        (spell.type == "seal" and spell.ConfigID == BOM.CurrentProfile.LastSeal) then
+--      spell.frames.Set:SetState(true)
+--    else
+--      spell.frames.Set:SetState(false)
+--    end
+--  end
+--end
+
+---UpdateSpellTabs - create rows in the spell tabs (if were not created), update
+---checkboxes on the spell rows matching the current selected profile.
 function mainwindowModule:UpdateSpellTabs()
   if InCombatLockdown() then
     return
   end
 
-  if not mainwindowModule.spellTabsCreatedFlag then
-    bm2ui:HideAllManagedFrames()
+  uiModule:HideAllManagedFrames()
 
-    bm2CreateSpellsTab()
-    bm2CreateConsumesTab()
-    bm2CreateSettingsTab()
+  bm2CreateSpellsTab()
+  bm2CreateConsumesTab()
+  bm2CreateSettingsTab()
 
-    mainwindowModule.spellTabsCreatedFlag = true
-  end
-
-  local _className, self_class_name, _classId = UnitClass("player")
-
-  for i, spell in ipairs(BOM.SelectedSpells) do
-    if type(spell.onlyUsableFor) == "table"
-        and not tContains(spell.onlyUsableFor, self_class_name) then
-      -- skip
-    else
-      bomUpdateSelectedSpell(spell)
-    end
-  end
-
-  for _i, spell in ipairs(BOM.CancelBuffs) do
-    spell.frames.Enable:SetVariable(BOM.CurrentProfile.CancelBuff[spell.ConfigID], "Enable")
-  end
-
-  --Create small toggle button to the right of [Cast <spell>] button
-  BOM.CreateSingleBuffButton(BomC_ListTab) --maybe not created yet?
+  -- TODO: Create small toggle button to the right of [Cast <spell>] button
+  -- BOM.CreateSingleBuffButton(BomC_ListTab) --maybe not created yet?
 end

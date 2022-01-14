@@ -5,7 +5,7 @@ local spellsDb = Bm2Module.DeclareModule("SpellsDb") ---@type Bm2SpellsDbModule
 local constModule = Bm2Module.Import("Const") ---@type Bm2ConstModule
 local spellDef = Bm2Module.Import("SpellDef") ---@type Bm2SpellDefModule
 local itemDef = Bm2Module.Import("ItemDef") ---@type Bm2ItemDefModule
-local buffDef = Bm2Module.Import("BuffDef")---@type Bm2BuffDefModule
+local buffDef = Bm2Module.Import("SpellsDb/BuffDef")---@type Bm2BuffDefModule
 
 ---@param holyCandle Bm2ItemDefinition
 ---@param sacredCandle Bm2ItemDefinition
@@ -144,18 +144,18 @@ local function elunesGrace()
   local singleRanks = {}
   if (constModule.IsTBC) then
     singleRanks = { -- TBC: The only rank
-      spellDef:New("shadowguard_tbc", 2651, true),
+      spellDef:New("elunes_grace_tbc", 2651, true),
     }
   else
-    singleRanks = { -- Classic: 5 ranks
-      spellDef:New("shadowguard1", 2651),
-      spellDef:New("shadowguard2", 19289),
-      spellDef:New("shadowguard3", 19291),
-      spellDef:New("shadowguard4", 19292),
-      spellDef:New("shadowguard5", 19293),
+    singleRanks = {
+      spellDef:New("elunes_grace1", 2651),
+      spellDef:New("elunes_grace2", 19289),
+      spellDef:New("elunes_grace3", 19291),
+      spellDef:New("elunes_grace4", 19292),
+      spellDef:New("elunes_grace5", 19293),
     }
   end
-  spellsDb:AddBuff("buff_shadowguard"):DefaultEnabled():SelfOnly()
+  spellsDb:AddBuff("buff_elunesgrace"):DefaultEnabled():SelfOnly()
           :SingleBuff(singleRanks)
 end
 

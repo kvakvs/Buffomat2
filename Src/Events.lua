@@ -112,14 +112,14 @@ end
 ---@param errorType table
 ---@param message table
 local function bm2event_UI_ERROR_MESSAGE(_errorType, message)
-  if tContains(bm2const.ErrorsWhenNotStanding, message) and Bm2Addon.db.char.autoStand then
+  if tContains(bm2const.ErrorsWhenNotStanding, message) and profileModule.active.autoStand then
     UIErrorsFrame:Clear()
     DoEmote("STAND")
 
   elseif tContains(bm2const.ErrorsWhenMounted, message) then
     local flying = false -- prevent dismount in flight, OUCH!
     if bm2const.IsTBC then
-      flying = IsFlying() and not Bm2Addon.db.char.autoDismountFlying
+      flying = IsFlying() and not profileModule.active.autoDismountFlying
     end
     if not flying then
       if Bm2Addon.db.char.autoDismount then
@@ -128,7 +128,7 @@ local function bm2event_UI_ERROR_MESSAGE(_errorType, message)
       end
     end
 
-  elseif Bm2Addon.db.char.autoLeaveShapeshift
+  elseif profileModule.active.autoLeaveShapeshift
       and tContains(bm2const.ErrorsWhenShapeshifted, message)
       and engine:CancelBuff(bm2const.ShapeShiftTravel) then
     UIErrorsFrame:Clear()
@@ -243,7 +243,7 @@ local function bm2event_Bag()
 end
 
 function eventsModule:RegisterEarlyEvents()
-  --Bm2Addon:RegisterEvent("PLAYER_LOGIN", function()
+  Bm2Addon:Print("events: RegisterEarlyEvents")
   Bm2Addon:RegisterEvent("PLAYER_ENTERING_WORLD", function() Bm2Addon:OnInitializeStep2() end)
   Bm2Addon:RegisterEvent("LOADING_SCREEN_DISABLED", function() Bm2Addon:OnInitializeStep2() end)
 end
@@ -309,7 +309,8 @@ function eventsModule:RegisterLateEvents()
 end
 
 function eventsModule:EarlyModuleInit()
-  eventsModule:RegisterEarlyEvents()
+  --This can't work from here, must be called from addon:OnInitialize directly
+  --eventsModule:RegisterEarlyEvents()
 end
 
 function eventsModule:LateModuleInit()

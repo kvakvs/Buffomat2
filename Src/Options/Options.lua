@@ -51,10 +51,10 @@ local function opt_scanInRestAreas(order)
     desc  = _t_fn('Allow scanning for missing buffs in cities and inns'),
     width = 1.5,
     get   = function()
-      return Bm2Addon.db.char.scanInRestAreas;
+      return profileModule.active.scanInRestAreas;
     end,
     set   = function(info, value)
-      Bm2Addon.db.char.scanInRestAreas = value;
+      profileModule.active.scanInRestAreas = value;
     end,
   }
 end
@@ -67,10 +67,10 @@ local function opt_scanInOpenWorld(order)
     desc  = _t_fn('Allow scanning in the open world.'),
     width = 1.5,
     get   = function()
-      return Bm2Addon.db.char.scanInOpenWorld;
+      return profileModule.active.scanInOpenWorld;
     end,
     set   = function(info, value)
-      Bm2Addon.db.char.scanInOpenWorld = value;
+      profileModule.active.scanInOpenWorld = value;
     end,
   }
 end
@@ -83,10 +83,10 @@ local function opt_scanInDungeons(order)
     desc  = _t_fn('Allow scanning for missing buffs in dungeon and raid instances.'),
     width = 1.5,
     get   = function()
-      return Bm2Addon.db.char.scanInDungeons;
+      return profileModule.active.scanInDungeons;
     end,
     set   = function(info, value)
-      Bm2Addon.db.char.scanInDungeons = value;
+      profileModule.active.scanInDungeons = value;
     end,
   }
 end
@@ -99,10 +99,10 @@ local function opt_scanInPvp(order)
     desc  = _t_fn('Allow scanning for missing buffs in battlegrounds and PvP areas.'),
     width = 1.5,
     get   = function()
-      return Bm2Addon.db.char.scanInRestAreas;
+      return profileModule.active.scanInPvp;
     end,
     set   = function(info, value)
-      Bm2Addon.db.char.scanInRestAreas = value;
+      profileModule.active.scanInPvp = value;
     end,
   }
 end
@@ -115,10 +115,10 @@ local function opt_scanInStealth(order)
     desc  = _t_fn('Allow scanning for missing buffs while player is stealthed. Prevents accidental loss of stealth.'),
     width = 1.5,
     get   = function()
-      return Bm2Addon.db.char.scanInStealth;
+      return profileModule.active.scanInStealth;
     end,
     set   = function(info, value)
-      Bm2Addon.db.char.scanInStealth = value;
+      profileModule.active.scanInStealth = value;
     end,
   }
 end
@@ -131,10 +131,10 @@ local function opt_scanWhileMounted(order)
     desc  = _t_fn('Allow scanning for missing buffs while on a ground or flying mount.'),
     width = 1.5,
     get   = function()
-      return Bm2Addon.db.char.scanWhileMounted;
+      return profileModule.active.scanWhileMounted;
     end,
     set   = function(info, value)
-      Bm2Addon.db.char.scanWhileMounted = value;
+      profileModule.active.scanWhileMounted = value;
     end,
   }
 end
@@ -147,10 +147,10 @@ local function opt_preventPvpTag(order)
     desc  = _t_fn('Skip PvP flagged targets if the player is not PvP flagged.'),
     width = 1.5,
     get   = function()
-      return Bm2Addon.db.char.preventPvpTag;
+      return profileModule.active.preventPvpTag;
     end,
     set   = function(info, value)
-      Bm2Addon.db.char.preventPvpTag = value;
+      profileModule.active.preventPvpTag = value;
     end,
   }
 end
@@ -163,10 +163,10 @@ local function opt_autoDismountGround(order)
     desc  = _t_fn('Hop off your ground mount if a buff is attempted.'),
     width = 1.5,
     get   = function()
-      return Bm2Addon.db.char.autoDismountGround;
+      return profileModule.active.autoDismountGround;
     end,
     set   = function(info, value)
-      Bm2Addon.db.char.autoDismountGround = value;
+      profileModule.active.autoDismountGround = value;
     end,
   }
 end
@@ -179,10 +179,10 @@ local function opt_autoDismountFlying(order)
     desc  = _t_fn('Hop off your flying mount if a buff is attempted. Can cause death.'),
     width = 1.5,
     get   = function()
-      return Bm2Addon.db.char.autoDismountFlying;
+      return profileModule.active.autoDismountFlying;
     end,
     set   = function(info, value)
-      Bm2Addon.db.char.autoDismountFlying = value;
+      profileModule.active.autoDismountFlying = value;
     end,
   }
 end
@@ -195,10 +195,10 @@ local function opt_autoStand(order)
     desc  = _t_fn('Stand up if a buff is attempted while the character was sitting.'),
     width = 1.5,
     get   = function()
-      return Bm2Addon.db.char.autoStand;
+      return profileModule.active.autoStand;
     end,
     set   = function(info, value)
-      Bm2Addon.db.char.autoStand = value;
+      profileModule.active.autoStand = value;
     end,
   }
 end
@@ -211,10 +211,10 @@ local function opt_autoLeaveShapeshift(order)
     desc  = _t_fn('If a buff is attempted while in a shapeshift form, leave that form.'),
     width = 1.5,
     get   = function()
-      return Bm2Addon.db.char.autoLeaveShapeshift;
+      return profileModule.active.autoLeaveShapeshift;
     end,
     set   = function(info, value)
-      Bm2Addon.db.char.autoLeaveShapeshift = value;
+      profileModule.active.autoLeaveShapeshift = value;
     end,
   }
 end
@@ -227,10 +227,10 @@ local function opt_autoCrusaderAura(order)
     desc  = _t_fn('For paladins suggest enabling crusader aura when mounted.'),
     width = 1.5,
     get   = function()
-      return Bm2Addon.db.char.autoCrusaderAura;
+      return profileModule.active.autoCrusaderAura;
     end,
     set   = function(info, value)
-      Bm2Addon.db.char.autoCrusaderAura = value;
+      profileModule.active.autoCrusaderAura = value;
     end,
   }
 end

@@ -3,13 +3,15 @@
 ---@field playerIsCasting string|nil String "cast" or "channel" when player is casting or channeling
 ---@field playerIsInCombat boolean
 ---@field lastTarget string|nil Modified when player target changes
-Bm2Addon = LibStub("AceAddon-3.0"):NewAddon("Buffomat2", "AceConsole-3.0", "AceEvent-3.0")
-
-local bm2 = Bm2Addon ---@type Bm2Addon
+-- ---@field addonLifecycle string
+local bm2 = LibStub("AceAddon-3.0"):NewAddon("Buffomat2", "AceConsole-3.0", "AceEvent-3.0") ---@type Bm2Addon
+--bm2.addonLifecycle = "created"
+Bm2Addon = bm2
 
 local optionsModule = Bm2Module.Import("Options") ---@type Bm2OptionsModule
 local slashModule = Bm2Module.Import("Slash"); ---@type Bm2SlashModule
 local uiModule = Bm2Module.Import("Ui"); ---@type Bm2UiModule
+local eventsModule = Bm2Module.Import("Events"); ---@type Bm2EventsModule
 local _t = Bm2Module.Import("Translation") ---@type Bm2TranslationModule
 local spellsDb = Bm2Module.Import("SpellsDb") ---@type Bm2SpellsDbModule
 local mainWindowModule = Bm2Module.Import("Ui/MainWindow")---@type Bm2UiMainWindowModule
@@ -27,18 +29,22 @@ local function bm2MakeOptions()
 end
 
 function bm2:OnInitialize()
+  --bm2.addonLifecycle = "initialize1"
   bm2.db = LibStub("AceDB-3.0"):New("Bm2Conf", optionsModule:GetDefaults(), true)
 
-  Bm2Module.CallInEachModule("EarlyModuleInit")
+  eventsModule:RegisterEarlyEvents()
+  Bm2Module:CallInEachModule("EarlyModuleInit")
+  --bm2.addonLifecycle = "initialize1-finished"
 end
 
-local bm2Step2Done = false
+local bm2InitStep2Done = false -- to prevent double trigger OnInitializeStep2
 
 function bm2:OnInitializeStep2()
-  if (bm2Step2Done) then
+  if (bm2InitStep2Done) then
     return
   end
-  bm2Step2Done = true
+  bm2InitStep2Done = true
+  --bm2.addonLifecycle = "initialize2"
 
   bm2:RegisterChatCommand("bm2", "HandleSlash")
 
@@ -52,7 +58,8 @@ function bm2:OnInitializeStep2()
 
   uiModule:SetupMainWindow()
 
-  Bm2Module.CallInEachModule("LateModuleInit")
+  Bm2Module:CallInEachModule("LateModuleInit")
+  --bm2.addonLifecycle = "initialize2-finished"
 end
 
 function bm2:HandleSlash(input)
@@ -78,4 +85,5 @@ end
 
 ---Settings ⚙ button was clicked
 function bm2:OnSettingsClick()
+  Bm2Addon:Print("On settings click")
 end

@@ -5,7 +5,7 @@ local spellsDb = Bm2Module.DeclareModule("SpellsDb") ---@type Bm2SpellsDbModule
 local constModule = Bm2Module.Import("Const") ---@type Bm2ConstModule
 local spellDef = Bm2Module.Import("SpellDef") ---@type Bm2SpellDefModule
 local itemDef = Bm2Module.Import("ItemDef") ---@type Bm2ItemDefModule
-local buffDef = Bm2Module.Import("BuffDef") ---@type Bm2BuffDefModule
+local buffDef = Bm2Module.Import("SpellsDb/BuffDef") ---@type Bm2BuffDefModule
 local _t = Bm2Module.Import("Translation")---@type Bm2TranslationModule
 
 local function ofTheWild(wildBerries, wildThornroot)

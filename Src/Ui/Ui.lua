@@ -1,10 +1,12 @@
-local TOCNAME, _ = ...
-
 ---@class Bm2UiModule
 ---@field popupDynamic table Popup menu on minimap icon and on the addon window
 ---@field managedUiFrames table<number, Bm2Control> All frames and buttons to be group managed/hidden/reused
 local uiModule = Bm2Module.DeclareModule("Ui")
-uiModule.managedUiFrames = {}
+
+function uiModule:EarlyModuleInit()
+  uiModule.managedUiFrames = {}
+  uiModule.aceGui = LibStub("AceGUI-3.0")
+end
 
 local constModule = Bm2Module.Import("Const") ---@type Bm2ConstModule
 local popupModule = Bm2Module.Import("UiPopup") ---@type Bm2PopupModule
@@ -150,7 +152,9 @@ local function bm2CreateSizeBorder(frame, name, a1, x1, y1, a2, x2, y2, cursor, 
 
   local frameSizeBorder ---@type Bm2Control
 
-  frameSizeBorder = CreateFrame("Frame", (frame:GetName() or TOCNAME .. bm2SizeCount) .. "_size_" .. name, frame)
+  frameSizeBorder = CreateFrame("Frame",
+      (frame:GetName() or constModule.AddonName .. bm2SizeCount) .. "_size_" .. name,
+      frame)
   frameSizeBorder:SetPoint("TOPLEFT", frame, a1, x1, y1)
   frameSizeBorder:SetPoint("BOTTOMRIGHT", frame, a2, x2, y2)
   frameSizeBorder.Bm2SizeType = name

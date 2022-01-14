@@ -2,13 +2,13 @@
 ---@class Bm2SpellsDbModule
 ---@field allPossibleBuffs table<string, Bm2BuffDefinition> All buff definitions, with string keys
 ---@field availableBuffs table<string, Bm2BuffDefinition> Buff definitions which the player knows
----@field cancelBuffs table<number, Bm2BuffDefinition> Buff definitions to show in cancel buff list
+---@field allCancelBuffs table<number, Bm2BuffDefinition> Buff definitions to show in cancel buff list
 ---@field enchantIds table<number, string> Weapon enchantment id to buff id reverse lookup
 ---@field availableSpellIds table<number, number> Ids of spells available to the player, for combat log filtering
 ---@field buffReverseLookup table<number, Bm2BuffDefinition> Reverse lookup of buff by spellid
 local spellsDbModule = Bm2Module.DeclareModule("SpellsDb")
 
-local buffDef = Bm2Module.DeclareModule("BuffDef") ---@type Bm2BuffDefModule
+local buffDef = Bm2Module.DeclareModule("SpellsDb/BuffDef") ---@type Bm2BuffDefModule
 local priestModule = Bm2Module.Import("SpellsDb/Priest") ---@type Bm2SpellsDbPriestModule
 local druidModule = Bm2Module.Import("SpellsDb/Druid") ---@type Bm2SpellsDbDruidModule
 local constModule = Bm2Module.Import("Const")---@type Bm2ConstModule
@@ -16,7 +16,7 @@ local constModule = Bm2Module.Import("Const")---@type Bm2ConstModule
 spellsDbModule.allPossibleBuffs = {}
 spellsDbModule.availableBuffs = {}
 spellsDbModule.enchantIds = {}
-spellsDbModule.cancelBuffs = {}
+spellsDbModule.allCancelBuffs = {}
 spellsDbModule.availableSpellIds = {} -- for combat log filtering
 spellsDbModule.buffReverseLookup = {} -- for finding buff defs by spellid
 
@@ -78,7 +78,7 @@ local function bm2InitCancelBuffs()
   local priestShield = spellsDbModule.allPossibleBuffs["buff_shield"]
   local mageIntellect = spellsDbModule.allPossibleBuffs["buff_arcane_intel"]
 
-  spellsDbModule.cancelBuffs = {
+  spellsDbModule.allCancelBuffs = {
     priestShield,
     priestSpirit,
     mageIntellect,
@@ -91,11 +91,11 @@ local function bm2InitCancelBuffs()
     }
     local buffHunterRunSpeed = buffDef:New("cancelbuff_hunter_run")
                                       :SelfOnly():SingleBuff(singleRanks)
-    tinsert(spellsDbModule.cancelBuffs, buffHunterRunSpeed)
+    tinsert(spellsDbModule.allCancelBuffs, buffHunterRunSpeed)
   end
 
   if constModule.PlayerFaction ~= "Horde" or constModule.IsTBC then
-    tinsert(spellsDbModule.cancelBuffs, spellsDbModule.allPossibleBuffs["buff_salvation"])
+    tinsert(spellsDbModule.allCancelBuffs, spellsDbModule.allPossibleBuffs["buff_salvation"])
   end
 end
 
