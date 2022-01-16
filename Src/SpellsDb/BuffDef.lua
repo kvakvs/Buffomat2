@@ -18,10 +18,16 @@ local engine = Bm2Module.Import("Engine")---@type Bm2EngineModule
 ---@field shapeshiftFormId number|nil Allows to check whether user is already in that shapeshift
 ---@field requiresShapeshiftFormId number|nil Requires player to be in this form
 ---@field sort number|nil Suggests when the buff should be prioritized, 0=asap, 100=anytime, or as 1000=late as possible
+---@field singleLink string Printable link to the single buff spell
+---@field singleName string Text name of the single buff spell
+---@field trackingIconId string Icon path of tracking buff used when auto-enabling tracking
+--TODO: copy SpellSetup.lua/SetupSpell
 local classBuffDef = {}
 classBuffDef.__index = classBuffDef
 
 buffDefModule.BUFFTYPE_SPELL = "spell" -- simple cast
+buffDefModule.BUFFTYPE_AURA = "aura" -- activate a buff zone around you
+buffDefModule.BUFFTYPE_SEAL = "seal" -- short duration weapon augment, showing as a buff
 buffDefModule.BUFFTYPE_RESURRECTION = "resurrection" -- someone is dead
 buffDefModule.BUFFTYPE_ITEM_USE = "item_use" -- right click an item
 buffDefModule.BUFFTYPE_ITEM_TARGET_USE = "item_target_use" -- target someone then right click
@@ -34,7 +40,9 @@ buffDefModule.SEQ_LATE = 1000
 ---Returns true if this buff is a class ability, spell or tracking buff
 ---@return boolean
 function classBuffDef:IsClassBuff()
-  return self.buffType == buffDefModule.BUFFTYPE_SPELL
+  return self.buffType == buffDefModule.BUFFTYPE_AURA
+      or self.buffType == buffDefModule.BUFFTYPE_SEAL
+      or self.buffType == buffDefModule.BUFFTYPE_SPELL
       or self.buffType == buffDefModule.BUFFTYPE_TRACKING
       or self.buffType == buffDefModule.BUFFTYPE_RESURRECTION
 end
@@ -57,6 +65,10 @@ function buffDefModule:New(buffId)
   fields.groupBuff = {}
   fields.sort = buffDefModule.SEQ_NORMAL
   fields.buffType = buffDefModule.BUFFTYPE_SPELL
+
+  -- TODO: singleLink from GetSpellInfo
+  -- TODO: singleName from GetSpellInfo
+  fields.singleName = buffId
 
   return fields
 end

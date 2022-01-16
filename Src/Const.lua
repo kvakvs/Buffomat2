@@ -15,6 +15,29 @@ constModule.MacroIconFullpath = "Interface\\ICONS\\Ability_Druid_ChallangingRoar
 constModule.IconFormat = "|T%s:0:0:0:0:64:64:4:60:4:60|t"
 constModule.PictureFormat = "|T%s:0|t"
 
+constModule.IconClass = {
+  ["WARRIOR"] = "|TInterface\\WorldStateFrame\\ICONS-CLASSES:0:0:0:0:256:256:0:64:0:64|t",
+  ["MAGE"]    = "|TInterface\\WorldStateFrame\\ICONS-CLASSES:0:0:0:0:256:256:64:128:0:64|t",
+  ["ROGUE"]   = "|TInterface\\WorldStateFrame\\ICONS-CLASSES:0:0:0:0:256:256:128:192:0:64|t",
+  ["DRUID"]   = "|TInterface\\WorldStateFrame\\ICONS-CLASSES:0:0:0:0:256:256:192:256:0:64|t",
+  ["HUNTER"]  = "|TInterface\\WorldStateFrame\\ICONS-CLASSES:0:0:0:0:256:256:0:64:64:128|t",
+  ["SHAMAN"]  = "|TInterface\\WorldStateFrame\\ICONS-CLASSES:0:0:0:0:256:256:64:128:64:128|t",
+  ["PRIEST"]  = "|TInterface\\WorldStateFrame\\ICONS-CLASSES:0:0:0:0:256:256:128:192:64:128|t",
+  ["WARLOCK"] = "|TInterface\\WorldStateFrame\\ICONS-CLASSES:0:0:0:0:256:256:192:256:64:128|t",
+  ["PALADIN"] = "|TInterface\\WorldStateFrame\\ICONS-CLASSES:0:0:0:0:256:256:0:64:128:192|t",
+}
+constModule.IconClassBig = {
+  ["WARRIOR"] = "|TInterface\\WorldStateFrame\\ICONS-CLASSES:18:18:-4:4:256:256:0:64:0:64|t",
+  ["MAGE"]    = "|TInterface\\WorldStateFrame\\ICONS-CLASSES:18:18:-4:4:256:256:64:128:0:64|t",
+  ["ROGUE"]   = "|TInterface\\WorldStateFrame\\ICONS-CLASSES:18:18:-4:4:256:256:128:192:0:64|t",
+  ["DRUID"]   = "|TInterface\\WorldStateFrame\\ICONS-CLASSES:18:18:-4:4:256:256:192:256:0:64|t",
+  ["HUNTER"]  = "|TInterface\\WorldStateFrame\\ICONS-CLASSES:18:18:-4:4:256:256:0:64:64:128|t",
+  ["SHAMAN"]  = "|TInterface\\WorldStateFrame\\ICONS-CLASSES:18:18:-4:4:256:256:64:128:64:128|t",
+  ["PRIEST"]  = "|TInterface\\WorldStateFrame\\ICONS-CLASSES:18:18:-4:4:256:256:128:192:64:128|t",
+  ["WARLOCK"] = "|TInterface\\WorldStateFrame\\ICONS-CLASSES:18:18:-4:4:256:256:192:256:64:128|t",
+  ["PALADIN"] = "|TInterface\\WorldStateFrame\\ICONS-CLASSES:18:18:-4:4:256:256:0:64:128:192|t",
+}
+
 --- Error messages which will make player stand if sitting
 constModule.ErrorsWhenNotStanding = {
   ERR_CANTATTACK_NOTSTANDING, SPELL_FAILED_NOT_STANDING,
@@ -52,6 +75,9 @@ constModule.DURATION_15M = 900
 constModule.DURATION_10M = 600
 constModule.DURATION_5M = 300
 
+constModule.EquipTrinket1 = 13
+constModule.EquipTrinket2 = 14
+
 -----------------------
 -- Class collections
 -----------------------
@@ -75,6 +101,7 @@ constModule.PlayerFaction = UnitFactionGroup("player")
 local playerName_, playerRealm_ = UnitName("player")
 constModule.PlayerName = playerName_
 constModule.PlayerRealm = playerRealm_
+constModule.PlayerNameRealm = playerName_ .. "-" .. playerRealm_
 
 -----------------------
 -- Spell Ids database
@@ -93,3 +120,30 @@ constModule.ShapeShiftTravel = {
   5487, -- junior bear form
   9634, -- dire bear form
 }
+constModule.ReputationTrinket = {
+  itemIds = {
+    12846, -- Simple AD trinket
+    13209, -- Seal of the Dawn +81 AP
+    19812, -- Rune of the Dawn +48 SPELL
+    23206, -- Mark of the Chamption +150 AP
+    23207, -- Mark of the Chamption +85 SPELL
+  },
+  --spells = {
+  --  17670, -- Simple AD trinket
+  --  23930, -- Seal of the Dawn +81 AP
+  --  24198, -- Rune of the Dawn +48 SPELL
+  --  29112, -- Mark of the Chamption +150 AP
+  --  29113, -- Mark of the Chamption +85 SPELL
+  --},
+  zoneId  = {
+    329, 289, 533, 535, --Stratholme/scholomance; Naxxramas LK 10/25
+    558, -- TBC: Auchenai
+    532, -- TBC: Karazhan
+  },
+}
+
+---------------------
+-- UI icons
+---------------------
+constModule.IconPet = "Interface\\ICONS\\Ability_Mount_JungleTiger"
+constModule.IconPetCoord = { 0.1, 0.9, 0.1, 0.9 }

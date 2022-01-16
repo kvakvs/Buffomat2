@@ -1,11 +1,12 @@
 ---@class Bm2EventsModule
 local eventsModule = Bm2Module.DeclareModule("Events")
 
-local bm2const = Bm2Module.Import("Const") ---@type Bm2ConstModule
+local constModule = Bm2Module.Import("Const") ---@type Bm2ConstModule
 local mainWindow = Bm2Module.Import("Ui/MainWindow") ---@type Bm2UiMainWindowModule
 local engine = Bm2Module.Import("Engine") ---@type Bm2EngineModule
 local spellsDb = Bm2Module.Import("SpellsDb") ---@type Bm2SpellsDbModule
-local bm2bag = Bm2Module.Import("Bag")---@type Bm2BagModule
+local bagModule = Bm2Module.Import("Bag")---@type Bm2BagModule
+local profileModule = Bm2Module.Import("Profile")---@type Bm2ProfileModule
 
 local EVT_COMBAT_STOP = { "PLAYER_REGEN_ENABLED" }
 local EVT_COMBAT_START = { "PLAYER_REGEN_DISABLED" }
@@ -32,7 +33,7 @@ local function bm2event_TAXIMAP_OPENED()
     Dismount()
   else
     DoEmote("STAND")
-    engine:CancelBuff(bm2const.ShapeShiftTravel)
+    engine:CancelBuff(constModule.ShapeShiftTravel)
   end
 end
 
@@ -40,8 +41,8 @@ end
 ---UNIT_POWER_UPDATE: "unitTarget", "powerType"
 local function bm2event_UNIT_POWER_UPDATE(_eventName, unitTarget, powerType)
   if powerType == "MANA" and UnitIsUnit(unitTarget, "player") and not InCombatLockdown() then
-    local max_mana = UnitPowerMax("player", bm2const.POWER_MANA) or 0
-    local actual_mana = UnitPower("player", bm2const.POWER_MANA) or 0
+    local max_mana = UnitPowerMax("player", constModule.POWER_MANA) or 0
+    local actual_mana = UnitPower("player", constModule.POWER_MANA) or 0
 
     if max_mana <= actual_mana then
       engine:SetForceUpdate("power change")
@@ -83,6 +84,9 @@ local function bm2event_COMBAT_LOG_EVENT_UNFILTERED()
 
     elseif spellsDb.availableSpellIds[spellId] then
       -- If spell id is one of the spells available to us (i.e. we can refresh it)
+      if target == constModule.PlayerNameRealm then -- transform Myname-Myrealm to "player"
+        target = "player"
+      end
 
       local buffId = spellsDb.buffReverseLookup[spellId].buffId
 
@@ -112,13 +116,13 @@ end
 ---@param errorType table
 ---@param message table
 local function bm2event_UI_ERROR_MESSAGE(_errorType, message)
-  if tContains(bm2const.ErrorsWhenNotStanding, message) and profileModule.active.autoStand then
+  if tContains(constModule.ErrorsWhenNotStanding, message) and profileModule.active.autoStand then
     UIErrorsFrame:Clear()
     DoEmote("STAND")
 
-  elseif tContains(bm2const.ErrorsWhenMounted, message) then
+  elseif tContains(constModule.ErrorsWhenMounted, message) then
     local flying = false -- prevent dismount in flight, OUCH!
-    if bm2const.IsTBC then
+    if constModule.IsTBC then
       flying = IsFlying() and not profileModule.active.autoDismountFlying
     end
     if not flying then
@@ -129,8 +133,8 @@ local function bm2event_UI_ERROR_MESSAGE(_errorType, message)
     end
 
   elseif profileModule.active.autoLeaveShapeshift
-      and tContains(bm2const.ErrorsWhenShapeshifted, message)
-      and engine:CancelBuff(bm2const.ShapeShiftTravel) then
+      and tContains(constModule.ErrorsWhenShapeshifted, message)
+      and engine:CancelBuff(constModule.ShapeShiftTravel) then
     UIErrorsFrame:Clear()
 
   --elseif not InCombatLockdown() then
@@ -206,7 +210,7 @@ local function bm2event_LoadingStart()
 end
 
 local function bm2event_LoadingStop()
-  engine.loadingScreenTimeOut = GetTime() + bm2const.LOADING_SCREEN_TIMEOUT
+  engine.loadingScreenTimeOut = GetTime() + constModule.LOADING_SCREEN_TIMEOUT
   engine:SetForceUpdate("loading screen end")
 end
 
@@ -239,7 +243,7 @@ end
 
 local function bm2event_Bag()
   engine:SetForceUpdate()
-  bm2bag:Invalidate()
+  bagModule:Invalidate()
 end
 
 function eventsModule:RegisterEarlyEvents()

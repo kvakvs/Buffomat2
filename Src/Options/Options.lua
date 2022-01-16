@@ -286,26 +286,33 @@ function options:GetDefaults()
     },
     char   = {
       -- TODO: durationCache has names populated from the known spells when updating spells
-      durationCache       = {}, -- [spellname] => GetTime(), for spells known to Buffomat
+      durationCache     = {}, -- [spellname] => GetTime(), for spells known to Buffomat
 
-      mainWindowX         = 0,
-      mainWindowY         = 0,
-      mainWindowWidth     = 180,
-      mainWindowHeight    = 90,
+      mainWindowX       = 0,
+      mainWindowY       = 0,
+      mainWindowWidth   = 180,
+      mainWindowHeight  = 90,
 
-      autoShow            = true,
-      buffCurrentTarget   = true,
+      autoShow          = true,
+      buffCurrentTarget = true,
+      lastTracking      = "", -- icon path for tracking which was last active
+
+      rebuffForDuration60 = 5,
+      rebuffForDuration300 = 60,
+      rebuffForDuration600 = 120,
+      rebuffForDuration1800 = 180,
+      rebuffForDuration3600 = 180,
 
       --
       -- Profile management and multiple profiles for the player
       --
-      useProfiles         = false,
-      forceProfile        = "",
-      profile = {
-        solo = profileModule:NewProfile(),
-        raid = profileModule:NewProfile(),
+      useProfiles       = false,
+      forceProfile      = "",
+      profile           = {
+        solo  = profileModule:NewProfile(),
+        raid  = profileModule:NewProfile(),
         party = profileModule:NewProfile(),
-        pvp = profileModule:NewProfile(),
+        pvp   = profileModule:NewProfile(),
       },
     },
   }

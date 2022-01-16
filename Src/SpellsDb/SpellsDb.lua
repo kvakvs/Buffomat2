@@ -6,6 +6,7 @@
 ---@field enchantIds table<number, string> Weapon enchantment id to buff id reverse lookup
 ---@field availableSpellIds table<number, number> Ids of spells available to the player, for combat log filtering
 ---@field buffReverseLookup table<number, Bm2BuffDefinition> Reverse lookup of buff by spellid
+---@field enchantmentIdBuffReverseLookup table<number, Bm2BuffDefinition> Reverse lookup of buff by enchantmentId
 local spellsDbModule = Bm2Module.DeclareModule("SpellsDb")
 
 local buffDef = Bm2Module.DeclareModule("SpellsDb/BuffDef") ---@type Bm2BuffDefModule
@@ -19,6 +20,10 @@ spellsDbModule.enchantIds = {}
 spellsDbModule.allCancelBuffs = {}
 spellsDbModule.availableSpellIds = {} -- for combat log filtering
 spellsDbModule.buffReverseLookup = {} -- for finding buff defs by spellid
+spellsDbModule.enchantmentIdBuffReverseLookup = {} -- for finding buff defs by enchantmentId
+spellsDbModule.ignoreMembersWithAura = {
+  4511 -- Phase Shift (imp)
+}
 
 ---@param buffId string Unique string key to the buff
 ---@return Bm2BuffDefinition

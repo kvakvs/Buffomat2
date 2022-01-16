@@ -6,7 +6,6 @@ local profileModule = Bm2Module.DeclareModule("Profile")
 local spellsDb = Bm2Module.Import("SpellsDb") ---@type Bm2SpellsDbModule
 
 function profileModule:LateModuleInit()
-  Bm2Addon:Print("Profile:LMI")
   profileModule.active = { }
   profileModule:Activate(profileModule:ChooseProfile())
 end
@@ -27,25 +26,31 @@ end
 ---@field autoStand boolean
 ---@field autoLeaveShapeshift boolean
 ---@field autoCrusaderAura boolean
+---@field warnReputationTrinket boolean Queue gear change task, if user forgot their rep trinket on where it does not work
+---@field warnRidingTrinket boolean Queue gear change task, if user uses riding trinket
+---@field warnNoWeapon boolean Queue gear change task, if user has no weapon (disappeared after Kael'thas fight or unequipped) or fishing pole
 
 ---@return Bm2Profile
 function profileModule:NewProfile()
   return {
-    selectedBuffs       = profileModule:GetDefaultEnabledBuffs(),
-    cancelBuffs         = {}, -- list(buffId)
-    doNotScanGroup      = {}, -- [number] => true
-    scanInRestAreas     = true,
-    scanInOpenWorld     = true,
-    scanInDungeons      = true,
-    scanInPvp           = true,
-    scanInStealth       = false,
-    scanWhileMounted    = false,
-    preventPvpTag       = true,
-    autoDismountGround  = true,
-    autoDismountFlying  = false,
-    autoStand           = true,
-    autoLeaveShapeshift = true,
-    autoCrusaderAura    = true,
+    selectedBuffs         = profileModule:GetDefaultEnabledBuffs(),
+    cancelBuffs           = {}, -- list(buffId)
+    doNotScanGroup        = {}, -- [number] => true
+    scanInRestAreas       = true,
+    scanInOpenWorld       = true,
+    scanInDungeons        = true,
+    scanInPvp             = true,
+    scanInStealth         = false,
+    scanWhileMounted      = false,
+    preventPvpTag         = true,
+    autoDismountGround    = true,
+    autoDismountFlying    = false,
+    autoStand             = true,
+    autoLeaveShapeshift   = true,
+    autoCrusaderAura      = true,
+    warnReputationTrinket = true,
+    warnRidingTrinket     = true,
+    warnNoWeapon          = true,
   }
 end
 
