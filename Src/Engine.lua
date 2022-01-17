@@ -4,6 +4,7 @@
 ---@class Bm2EngineModule
 ---@field activeBuffs table<string, table<string, number>> Remaining durations on buffs. ActiveBuffs[targetName][buffId] => GetTime()
 ---@field forceUpdate string|nil Modified when something happens that we must recalculate the task list. Value is reason for recalculation
+---@field repeatUpdate boolean Set to true to run update second time asap after force update
 ---@field loadingScreen boolean Set to true between loadingscreen start and stop
 ---@field loadingScreenTimeout number|nil
 ---@field declineHasResurrection boolean Set to true on combat start, stop, holding Alt, cleared on party update

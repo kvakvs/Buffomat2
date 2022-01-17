@@ -1,8 +1,9 @@
 ---@class Bm2BuffDefModule
 local buffDefModule = Bm2Module.DeclareModule("SpellsDb/BuffDef") ---@type Bm2BuffDefModule
 
-local engine = Bm2Module.Import("Engine")---@type Bm2EngineModule
 local constModule = Bm2Module.Import("Const") ---@type Bm2ConstModule
+local engine = Bm2Module.Import("Engine")---@type Bm2EngineModule
+local spellsDb = Bm2Module.Import("SpellsDb")---@type Bm2SpellsDbModule
 
 ---@class Bm2BuffDefinition
 ---@field buffId string
@@ -28,7 +29,13 @@ local constModule = Bm2Module.Import("Const") ---@type Bm2ConstModule
 ---@field calculatedTargets table<number, Bm2Member> Runtime field: Calculated targets in the party who need this buff
 ---@field calculatedGroup table<number, number> Runtime field: Calculated groups for group buff
 ---@field calculatedDeathGroup table<number, number> Runtime field: Group numbers where a dead member has been found
+---@field calculatedSkiplist table<number, string> Runtime field: Dynamic list of failed casts on targets, to try them later
 ---@field source string Unit who casted this buff, for info-type buffs
+---@field sacrificeAuraIds table<number, number> Warlock: Spellids of buffs on warlock, to prevent sacrificed pet resummoning
+---@field creatureType string Warlock: Creature type to be summoned by this buff (used to detect type of currently active pet)
+---@field creatureFamily string Warlock: Creature family to be summoned by this buff (used to detect type of currently active pet)
+---@field requiresWarlockPet boolean Warlock: Whether casting buff requires a summoned pet: soul link, sacrifice,...
+---@field requiresOutdoors boolean Whether a buff requires the player to be outdoors
 --TODO: copy SpellSetup.lua/SetupSpell
 local buffDefClass = {} ---@type Bm2BuffDefinition
 buffDefClass.__index = buffDefClass
@@ -43,6 +50,7 @@ buffDefModule.BUFFTYPE_RESURRECTION = "resurrection" -- someone is dead
 buffDefModule.BUFFTYPE_ITEM_USE = "itemUse" -- right click an item
 buffDefModule.BUFFTYPE_ITEM_TARGET_UNIT = "itemTargetUnit" -- target someone then right click
 buffDefModule.BUFFTYPE_TRACKING = "tracking" -- enable via tracking API
+buffDefModule.BUFFTYPE_SUMMON = "tracking" -- enable via tracking API
 
 buffDefModule.SEQ_EARLY = 0
 buffDefModule.SEQ_NORMAL = 100
@@ -58,6 +66,7 @@ function buffDefClass:IsCastedBuff()
       or self.buffType == buffDefModule.BUFFTYPE_TRACKING
       or self.buffType == buffDefModule.BUFFTYPE_RESURRECTION
       or self.buffType == buffDefModule.BUFFTYPE_WEAPON_ENCHANTMENT_SPELL
+      or self.buffType == buffDefModule.BUFFTYPE_SUMMON
 end
 
 ---Returns true if this buff is a consumable item, or elixir
@@ -79,7 +88,8 @@ function buffDefModule:New(buffId)
   fields.groupBuff = {}
   fields.sort = buffDefModule.SEQ_NORMAL
   fields.buffType = buffDefModule.BUFFTYPE_SPELL
-  fields.calculatedTargets = { }
+  fields.calculatedTargets = {}
+  fields.calculatedSkiplist = {}
 
   -- TODO: singleLink from GetSpellInfo
   -- TODO: singleName from GetSpellInfo
@@ -239,20 +249,45 @@ function buffDefClass:Cancel()
   engine:CancelBuff(spellIds)
 end
 
--- ---From end of self.singleBuff select highest available rank of single buff spell
--- ---@return Bm2SpellDefinition
---function buffDefClass:GetHighestSingleBuffSpell()
---  for i = 1, #self.singleBuff do
---    local index = #self.singleBuff + 1 - i -- reverse iter
---    local spell = self.singleBuff[index]
---
---    if spell:IsAvailable() then
---      return spell
---    end
---  end
---
---  return nil
---end
+---Select highest available and castable single spell, which also:
+---has reagent in the bag, is in range, same zone, enough mana...
+---@param target string
+---@return Bm2SpellDefinition|string Selected spell or reason it was not selected
+function buffDefClass:SelectSingleSpell(target)
+  for i = 1, #self.singleBuff do
+    local index = #self.singleBuff + 1 - i -- reverse iter
+    local spell = self.singleBuff[index]
+    local castCheck = spell:CanBeCast(target)
+
+    if castCheck == true then
+      return spell
+    end
+  end
+
+  -- None can be cast, but we can return fail reason for the highest rank spell
+  local spell = self.singleBuff[#self.singleBuff + 1]
+  return spell:CanBeCast(taget)
+end
+
+---Select highest available and castable group spell, which also:
+---has reagent in the bag, is in range, same zone, enough mana...
+---@param party table<number, Bm2Member>
+---@return Bm2SpellDefinition|string Selected spell or reason it was not selected
+function buffDefClass:SelectGroupSpell(party)
+  for i = 1, #self.groupBuff do
+    local index = #self.groupBuff + 1 - i -- reverse iter
+    local spell = self.groupBuff[index]
+    local castCheck = spell:CanBeCast(target)
+
+    if castCheck == true then
+      return spell
+    end
+  end
+
+  -- None can be cast, but we can return fail reason for the highest rank spell
+  local spell = self.groupBuff[#self.groupBuff + 1]
+  return spell:CanBeCast(taget)
+end
 
 ---Checks whether a tracking spell is now active
 ---@param buff Bm2BuffDefinition The tracking spell which might have tracking enabled
@@ -278,6 +313,23 @@ function buffDefClass:IsTrackingActive()
   end
 
   return false -- not found
+end
+
+---Tries to activate tracking described by `spell`
+---@param value boolean Whether tracking should be enabled
+function buffDefClass:SetTracking(value)
+  if constModule.IsTBC then
+    for i = 1, GetNumTrackingTypes() do
+      local name, texture, active, _category, _nesting, spellId = GetTrackingInfo(i)
+      if spellId == self.singleBuff[1].singleId then
+        -- found, compare texture with spell icon
+        SetTracking(i, value)
+        return
+      end
+    end
+  else
+    CastSpellByID(self.singleBuff[1].singleId)
+  end
 end
 
 ---@return boolean Whether class `cls` can be targeted by this buff. Also takes

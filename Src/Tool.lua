@@ -1,5 +1,5 @@
 ---@class Bm2ToolModule
-local toolModule = Bm2Module.DeclareModule("Tool")
+local toolModule = Bm2Module.DeclareModule("Tool") ---@type Bm2ToolModule
 
 function toolModule.UnitDistanceSquared(uId)
   --partly copied from DBM
@@ -38,4 +38,36 @@ function toolModule.UnitDistanceSquared(uId)
     end
   end
   return range
+end
+
+function toolModule.iSplit(inputstr, sep)
+  if sep == nil then
+    sep = "%s"
+  end
+
+  local t = {}
+
+  for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
+    if tContains(t, str) == false then
+      table.insert(t, tonumber(str))
+    end
+  end
+
+  return t
+end
+
+function toolModule.Split(inputstr, sep)
+  if sep == nil then
+    sep = "%s"
+  end
+
+  local t = {}
+
+  for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
+    if tContains(t, str) == false then
+      table.insert(t, str)
+    end
+  end
+
+  return t
 end

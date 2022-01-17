@@ -100,8 +100,8 @@ constModule.PlayerFaction = UnitFactionGroup("player")
 
 local playerName_, playerRealm_ = UnitName("player")
 constModule.PlayerName = playerName_
-constModule.PlayerRealm = playerRealm_
-constModule.PlayerNameRealm = playerName_ .. "-" .. playerRealm_
+constModule.PlayerRealm = playerRealm_ or "realm"
+constModule.PlayerNameRealm = playerName_ .. "-" .. (playerRealm_ or "realm")
 
 -----------------------
 -- Spell Ids database

@@ -9,7 +9,7 @@ local spellsDb = Bm2Module.Import("SpellsDb"); ---@type Bm2SpellsDbModule
 
 ---A party member or a player
 ---@class Bm2Member
----@field buffExists table<number, boolean> Availability of all auras even those not supported by BOM, by id, no extra detail stored
+---@field buffExists table<number, boolean> Availability of all auras even those not supported by Buffomat, by id, no extra detail stored
 ---@field buffs table<string, Bm2BuffOnUnit> Buffs on player keyed by buffid, only buffs supported by Buffomat are stored
 ---@field mainHandEnchantment Bm2BuffOnUnit|nil Mainhand player weapon buff
 ---@field offHandEnchantment Bm2BuffOnUnit|nil Offhand player weapon buff

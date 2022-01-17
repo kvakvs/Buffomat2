@@ -79,7 +79,7 @@ local function shield()
     spellDef:New("pw_shield9", 10900),
     spellDef:New("pw_shield10", 10901),
     spellDef:New("pw_shield11_tbc", 25217, true),
-    spellDef:New("pw_shield12_tbc", 2521, true),
+    spellDef:New("pw_shield12_tbc", 25218, true),
   }
   spellsDb:AddBuff("buff_shield")
           :SingleBuff(singleRanks):Duration(30):HasCooldown()

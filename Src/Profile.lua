@@ -37,6 +37,8 @@ end
 ---@field reminderConsumables boolean Instead of queuing an item use, queue a comment for consumables
 ---@field noBuffWithDeadMembers boolean Instead of queuing an item use, queue a comment for consumables
 ---@field replaceSingleWithGroup boolean Allow overwriting single buffs with group buffs
+---@field singleBuffOnly boolean Never cast group buffs
+---@field groupBuffMinCount number How many missing buffs in a group should trigger group buff
 local profileClass = {} ---@type Bm2Profile
 profileClass.__index = profileClass
 
@@ -71,6 +73,10 @@ function profileModule:NewProfile()
   p.reminderConsumables = false
   p.noBuffWithDeadMembers = true
   p.replaceSingleWithGroup = true
+
+  p.singleBuffOnly = false
+  p.groupBuffMinCount = 3
+
   return p
 end
 

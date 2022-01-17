@@ -1,5 +1,12 @@
 ---@class Bm2EventsModule
+---@field playerIsMoving boolean Modified on start_move/stop_move events
+---@field playerIsCasting string|nil String "cast" or "channel" when player is casting or channeling
+---@field playerIsInCombat boolean
+---@field lastTarget string|nil Modified when player target changes
 local eventsModule = Bm2Module.DeclareModule("Events")
+eventsModule.playerIsMoving = false
+eventsModule.playerIsCasting = false
+eventsModule.playerIsInCombat = false
 
 local constModule = Bm2Module.Import("Const") ---@type Bm2ConstModule
 local mainWindow = Bm2Module.Import("Ui/MainWindow") ---@type Bm2UiMainWindowModule
@@ -55,15 +62,15 @@ end
 local function bm2event_PLAYER_TARGET_CHANGED()
   if not InCombatLockdown() then
     if UnitInParty("target") or UnitInRaid("target") or UnitIsUnit("target", "player") then
-      Bm2Addon.lastTarget = UnitFullName("target")
+      eventsModule.lastTarget = UnitFullName("target")
       engine:UpdateSpellsTab("player target changed")
 
-    elseif Bm2Addon.lastTarget then
-      Bm2Addon.lastTarget = nil
+    elseif eventsModule.lastTarget then
+      eventsModule.lastTarget = nil
       engine:UpdateSpellsTab("player target cleared")
     end
   else
-    Bm2Addon.lastTarget = nil
+    eventsModule.lastTarget = nil
   end
 
   if not Bm2Addon.db.char.buffCurrentTarget then
@@ -151,29 +158,29 @@ local function bm2event_UI_ERROR_MESSAGE(_errorType, message)
 end
 
 local function bm2event_UNIT_SPELLCAST_START(_eventName, unit)
-  if UnitIsUnit(unit, "player") and not Bm2Addon.playerIsCasting then
-    Bm2Addon.playerIsCasting = "cast"
+  if UnitIsUnit(unit, "player") and not eventsModule.playerIsCasting then
+    eventsModule.playerIsCasting = "cast"
     engine:SetForceUpdate("player is casting")
   end
 end
 
 local function bm2event_UNIT_SPELLCAST_STOP(_eventName, unit)
-  if UnitIsUnit(unit, "player") and Bm2Addon.playerIsCasting then
-    Bm2Addon.playerIsCasting = nil
+  if UnitIsUnit(unit, "player") and eventsModule.playerIsCasting then
+    eventsModule.playerIsCasting = nil
     engine:SetForceUpdate("casting stop")
   end
 end
 
 local function bm2event_UNIT_SPELLCHANNEL_START(_eventName, unit)
-  if UnitIsUnit(unit, "player") and not Bm2Addon.playerIsCasting then
-    Bm2Addon.playerIsCasting = "channel"
+  if UnitIsUnit(unit, "player") and not eventsModule.playerIsCasting then
+    eventsModule.playerIsCasting = "channel"
     engine:SetForceUpdate("player is channeling")
   end
 end
 
 local function bm2event_UNIT_SPELLCHANNEL_STOP(_eventName, unit)
-  if UnitIsUnit(unit, "player") and Bm2Addon.playerIsCasting then
-    Bm2Addon.playerIsCasting = nil
+  if UnitIsUnit(unit, "player") and eventsModule.playerIsCasting then
+    eventsModule.playerIsCasting = nil
     engine:SetForceUpdate("channeling stop")
   end
 end
@@ -181,12 +188,13 @@ end
 local function bm2event_UNIT_SPELLCAST_errors(_eventName, unit)
   if UnitIsUnit(unit, "player") then
     engine:SetForceUpdate("cast end")
-    --Bm2Addon.playerIsCasting = nil
+    --eventsModule.playerIsCasting = nil
   end
 end
 
 ---On combat start will close the UI window and disable the UI. Will cancel the cancelable buffs.
 local function bm2event_CombatStart()
+  eventsModule.playerIsInCombat = true
   engine:SetForceUpdate("combat start")
   mainWindow.AutoClose()
 
@@ -198,6 +206,7 @@ local function bm2event_CombatStart()
 end
 
 local function bm2event_CombatStop()
+  eventsModule.playerIsInCombat = false
   engine:ClearSkipList()
   engine:SetForceUpdate("combat stop")
   mainWindow.AllowAutoOpen()
@@ -267,10 +276,10 @@ function eventsModule:RegisterLateEvents()
   --Bm2Addon:RegisterEvent("ADDON_LOADED", Event_ADDON_LOADED) -- doing initialization via Ace3 handlers
   Bm2Addon:RegisterEvent("UNIT_POWER_UPDATE", bm2event_UNIT_POWER_UPDATE)
   Bm2Addon:RegisterEvent("PLAYER_STARTED_MOVING", function()
-    Bm2Addon.playerIsMoving = true
+    self.playerIsMoving = true
   end)
   Bm2Addon:RegisterEvent("PLAYER_STOPPED_MOVING", function()
-    Bm2Addon.playerIsMoving = false
+    self.playerIsMoving = false
   end)
   Bm2Addon:RegisterEvent("PLAYER_TARGET_CHANGED", bm2event_PLAYER_TARGET_CHANGED)
   Bm2Addon:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", bm2event_COMBAT_LOG_EVENT_UNFILTERED)

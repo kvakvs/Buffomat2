@@ -19,17 +19,21 @@ local priestModule = Bm2Module.Import("SpellsDb/Priest") ---@type Bm2SpellsDbPri
 local druidModule = Bm2Module.Import("SpellsDb/Druid") ---@type Bm2SpellsDbDruidModule
 local constModule = Bm2Module.Import("Const")---@type Bm2ConstModule
 
+spellsDbModule.allCancelBuffs = {}
 spellsDbModule.allPossibleBuffs = {}
 spellsDbModule.availableBuffs = {}
-spellsDbModule.enchantIds = {}
-spellsDbModule.allCancelBuffs = {}
 spellsDbModule.availableSpellIds = {} -- for combat log filtering
+spellsDbModule.buffHighestAvailableGroup = {}
+spellsDbModule.buffHighestAvailableSingle = {}
 spellsDbModule.buffReverseLookup = {} -- for finding buff defs by spellid
+spellsDbModule.enchantIds = {}
 spellsDbModule.enchantmentIdBuffReverseLookup = {} -- for finding buff defs by enchantmentId
-spellsDbModule.itemIdBuffReverseLookup = {} -- for finding buff defs by itemid
+spellsDbModule.groupBuffSpellIds = {}
 spellsDbModule.ignoreMembersWithAura = {
   4511 -- Phase Shift (imp)
 }
+spellsDbModule.itemIdBuffReverseLookup = {} -- for finding buff defs by itemid
+spellsDbModule.singleBuffSpellIds = {}
 
 ---@param buffId string Unique string key to the buff
 ---@return Bm2BuffDefinition

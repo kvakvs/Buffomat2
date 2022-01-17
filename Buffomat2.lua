@@ -1,11 +1,5 @@
 ---@class Bm2Addon
----@field playerIsMoving boolean Modified on start_move/stop_move events
----@field playerIsCasting string|nil String "cast" or "channel" when player is casting or channeling
----@field playerIsInCombat boolean
----@field lastTarget string|nil Modified when player target changes
--- ---@field addonLifecycle string
 local bm2 = LibStub("AceAddon-3.0"):NewAddon("Buffomat2", "AceConsole-3.0", "AceEvent-3.0") ---@type Bm2Addon
---bm2.addonLifecycle = "created"
 Bm2Addon = bm2
 
 local optionsModule = Bm2Module.Import("Options") ---@type Bm2OptionsModule
@@ -19,7 +13,6 @@ local mainWindowModule = Bm2Module.Import("Ui/MainWindow")---@type Bm2UiMainWind
 local function bm2MakeOptions()
   return {
     name        = "Buffomat 2 Settings",
-    --handler = Questie,
     type        = "group",
     childGroups = "tab",
     args        = {
@@ -29,12 +22,10 @@ local function bm2MakeOptions()
 end
 
 function bm2:OnInitialize()
-  --bm2.addonLifecycle = "initialize1"
   bm2.db = LibStub("AceDB-3.0"):New("Bm2Conf", optionsModule:GetDefaults(), true)
 
   eventsModule:RegisterEarlyEvents()
   Bm2Module:CallInEachModule("EarlyModuleInit")
-  --bm2.addonLifecycle = "initialize1-finished"
 end
 
 local bm2InitStep2Done = false -- to prevent double trigger OnInitializeStep2
