@@ -9,6 +9,8 @@
 ---@field buffSourceCache table<string, string> [buffId]=>Unit; Stores who casted certain buffs on player
 local partyModule = Bm2Module.DeclareModule("Party")
 partyModule.buffSourceCache = {}
+partyModule.partyCache = {}
+partyModule.memberCache = {}
 
 local constModule = Bm2Module.Import("Const") ---@type Bm2ConstModule
 local uiModule = Bm2Module.Import("Ui"); ---@type Bm2UiModule

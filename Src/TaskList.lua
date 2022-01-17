@@ -252,11 +252,11 @@ local function bm2UpdateBuffTargets_Other(state, buff)
       pickThisTarget = true
     end
 
-    if buff.alwaysBuffTargets[member.name] then
+    if buff.alwaysBuffTargets and buff.alwaysBuffTargets[member.name] then
       pickThisTarget = true
     end
 
-    if buff.neverBuffTargets[member.name] then
+    if buff.neverBuffTargets and buff.neverBuffTargets[member.name] then
       pickThisTarget = false
     end
 
@@ -394,7 +394,7 @@ local function bm2UpdateBuffTargets(state, buff)
 
   -- Check Spell CD
   local _index, firstCalcTarget = next(buff.calculatedTargets) ---@type Bm2Member
-  if buff.hasCooldown and firstCalcTarget  ~= nil then
+  if buff.hasCooldown and firstCalcTarget ~= nil then
     local highestSingle = buff:SelectSingleSpell(firstCalcTarget.name)
     local startTime, duration = GetSpellCooldown(highestSingle.spellId)
 
@@ -1079,24 +1079,24 @@ end
 ---@param buff Bm2BuffDefinition
 ---@param state Bm2ScanState
 local function bm2ScanOneSpell(state, buff)
-  if next(buff.calculatedTargets)
-      and not buff:IsConsumableBuff()
-  then
-    if buff.singleMana < taskListModule.maxPlayerMana
-        and buff.singleMana > taskListModule.currentPlayerMana then
-      local singleSpell = spellsDb.singleBuffSpellIds[buff.buffId]
-      -- TODO: Why is this written this way?
-      taskListModule.maxPlayerMana = singleSpell.spellCost
-    end
-
-    if buff.groupMana
-        and buff.groupMana < taskListModule.maxPlayerMana
-        and buff.groupMana > taskListModule.currentPlayerMana then
-      local groupSpell = spellsDb.singleBuffSpellIds[buff.buffId]
-      -- TODO: Why is this written this way?
-      taskListModule.maxPlayerMana = groupSpell.spellCost
-    end
-  end
+  --if next(buff.calculatedTargets)
+  --    and not buff:IsConsumableBuff()
+  --then
+  --  if buff.singleMana < taskListModule.maxPlayerMana
+  --      and buff.singleMana > taskListModule.currentPlayerMana then
+  --    local singleSpell = spellsDb.singleBuffSpellIds[buff.buffId]
+  --    -- TODO: Why is this written this way?
+  --    taskListModule.maxPlayerMana = singleSpell.spellCost
+  --  end
+  --
+  --  if buff.groupMana
+  --      and buff.groupMana < taskListModule.maxPlayerMana
+  --      and buff.groupMana > taskListModule.currentPlayerMana then
+  --    local groupSpell = spellsDb.singleBuffSpellIds[buff.buffId]
+  --    -- TODO: Why is this written this way?
+  --    taskListModule.maxPlayerMana = groupSpell.spellCost
+  --  end
+  --end
 
   if buff.buffType == buffDefModule.BUFFTYPE_SUMMON then
     bm2AddSummonSpell(state, buff)
@@ -1119,18 +1119,18 @@ local function bm2ScanOneSpell(state, buff)
       state.inRange = true
     end
 
-  --elseif buff.isInfo then
-  --  if #buff.NeedMember then
-  --    for memberIndex, member in ipairs(buff.NeedMember) do
-  --      -- Text: [Player Link] [Spell Link]
-  --      tasklist:Add(
-  --          buff.singleLink or buff.single,
-  --          buff.single,
-  --          "Info",
-  --          BOM.Class.MemberBuffTarget:fromMember(member),
-  --          true)
-  --    end
-  --  end
+    --elseif buff.isInfo then
+    --  if #buff.NeedMember then
+    --    for memberIndex, member in ipairs(buff.NeedMember) do
+    --      -- Text: [Player Link] [Spell Link]
+    --      tasklist:Add(
+    --          buff.singleLink or buff.single,
+    --          buff.single,
+    --          "Info",
+    --          BOM.Class.MemberBuffTarget:fromMember(member),
+    --          true)
+    --    end
+    --  end
 
   elseif buff.buffType == buffDefModule.BUFFTYPE_TRACKING then
     if next(buff.calculatedTargets) ~= nil then
@@ -1157,9 +1157,9 @@ local function bm2ScanOneSpell(state, buff)
     Bm2Addon:Print("TODO: fix aura and seal buffs")
     if buff.shapeshiftFormId and GetShapeshiftFormID() == buff.shapeshiftFormId then
       -- if spell is shapeshift, and is already active, skip it
-    elseif #buff.NeedMember > 0 then
+    elseif next(buff.calculatedTargets) ~= nil then
       -- self buffs are not pvp-guarded
-      bm2AddSelfbuff(buff, state.player)
+      bm2AddSelfbuff(state, buff)
     end
 
   elseif buff.buffType == buffDefModule.BUFFTYPE_RESURRECTION then
@@ -1290,8 +1290,9 @@ local function bm2CheckTrinkets(state)
 
   ----------------------------------------------
   if profileModule.active.warnRidingTrinket then
-    local hasRidingTrinket = tContains(constModule.RidingTrinket.itemIds, itemTrinket1) or
-        tContains(BOM.RidingTrinket.itemIds, itemTrinket2)
+    local hasRidingTrinket = tContains(constModule.RidingTrinket.itemIds, itemTrinket1)
+        or tContains(constModule.RidingTrinket.itemIds, itemTrinket2)
+
     if hasRidingTrinket and not tContains(constModule.RidingTrinket.allowInZone, instanceID) then
       -- Text: Unequip [Carrot on a Stick]
       taskListModule:QueueComment(state, _t("Unequip riding trinket"))
@@ -1375,9 +1376,9 @@ end
 ---Continue scanning for active buffs which are missing on targets
 ---@return table<number, Bm2Task> New value to replace taskListModule.tasks
 function taskListModule:Scan_Step2()
-  local party, playerMember = partyModule:GetPartyMembers()
+  local party, player = partyModule:GetPartyMembers()
   local state = {
-    playerMember    = playerMember,
+    player          = player,
     party           = party,
     inRange         = false,
     castButtonTitle = "",
@@ -1388,14 +1389,14 @@ function taskListModule:Scan_Step2()
   if engineModule.forceUpdate then
     bm2ActivateSelectedTracking()
     -- Get the running aura (buff zone around player) and the running seal
-    bm2GetActiveAuraAndSeal(playerMember)
+    bm2GetActiveAuraAndSeal(player)
     -- Check changes to auras and seals and update the spell tab
     bm2CheckChangesAndUpdateSpelltab()
     bm2ForceUpdate(state)
   end
 
   -- cancel buffs
-  engineModule:CancelBuffsOn(playerMember)
+  engineModule:CancelBuffsOn(player)
 
   -- fill list and find cast
   taskListModule.currentPlayerMana = UnitPower("player", constModule.PowertypeMana) or 0 --mana
@@ -1422,7 +1423,8 @@ function taskListModule:Scan_Step2()
   end
 
   -- Open Buffomat if any cast tasks were added to the task list
-  if next(tasks) ~= nil then
+  -- TODO: fix from here
+  if next(state.tasks) ~= nil then
     BOM.AutoOpen()
   else
     BOM.AutoClose()
@@ -1507,7 +1509,6 @@ function taskListModule:Scan_Step2()
 end
 
 function taskListModule:Scan(caller)
-  Bm2Addon:Print("Scan (called from " .. caller .. ")")
   bagModule:GetItemList() -- possibly update the bag cache, and update the cooldowns
 
   if next(profileModule.active.selectedBuffs) == nil then

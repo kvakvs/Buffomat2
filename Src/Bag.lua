@@ -100,9 +100,9 @@ local function bm2LoadBagContents()
   end -- for all bags
 
   -- Update lookup cache
-  wipe(self.haveItemCache)
+  wipe(bagModule.haveItemCache)
   for _index, item in ipairs(bags) do
-    self.haveItemCache[item.itemId] = item
+    bagModule.haveItemCache[item.itemId] = item
   end
 
   return bags

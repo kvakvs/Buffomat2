@@ -22,8 +22,6 @@ local function bm2MakeOptions()
 end
 
 function bm2:OnInitialize()
-  bm2.db = LibStub("AceDB-3.0"):New("Bm2Conf", optionsModule:GetDefaults(), true)
-
   eventsModule:RegisterEarlyEvents()
   Bm2Module:CallInEachModule("EarlyModuleInit")
 end
@@ -37,15 +35,16 @@ function bm2:OnInitializeStep2()
   bm2InitStep2Done = true
   --bm2.addonLifecycle = "initialize2"
 
+  spellsDb:InitSpellsDb()
+  spellsDb:FilterAvailableSpells() -- no need to call here, it will be called on character enter world
+
+  bm2.db = LibStub("AceDB-3.0"):New("Bm2Conf", optionsModule:GetDefaults(), true)
   bm2:RegisterChatCommand("bm2", "HandleSlash")
 
   LibStub("AceConfig-3.0"):RegisterOptionsTable("Buffomat2", bm2MakeOptions())
 
   local configDialog = LibStub("AceConfigDialog-3.0")
   configDialog:AddToBlizOptions("Buffomat2", "Buffomat 2");
-
-  spellsDb:InitSpellsDb()
-  -- spellsDb:FilterAvailableSpells() -- no need to call here, it will be called on character enter world
 
   uiModule:SetupMainWindow()
 
