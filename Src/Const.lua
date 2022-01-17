@@ -3,7 +3,7 @@ local constModule = Bm2Module.DeclareModule("Const")
 
 -- Unit power type for MANA https://wowwiki-archive.fandom.com/wiki/PowerType
 -- https://wowwiki-archive.fandom.com/wiki/API_UnitPowerMax
-constModule.POWER_MANA = 0
+constModule.PowertypeMana = 0
 
 constModule.LegacyMacroName = "Buff'o'mat"
 constModule.AddonName = "Buffomat2"
@@ -108,9 +108,12 @@ constModule.PlayerNameRealm = playerName_ .. "-" .. playerRealm_
 -----------------------
 constModule.spellId = {
   PALADIN_CRUSADERAURA = 32223,
+  FIND_HERBS = 2383,
+  FIND_MINERALS = 2580,
 }
 constModule.shapeshiftForm = {
   PALADIN_CRUSADERAURA = 7,
+  -- CAT_FORM is a global constant
 }
 --- Note: Canceling shapeshift forms is currently impossible in TBC
 constModule.ShapeShiftTravel = {
@@ -135,11 +138,31 @@ constModule.ReputationTrinket = {
   --  29112, -- Mark of the Chamption +150 AP
   --  29113, -- Mark of the Chamption +85 SPELL
   --},
-  zoneId  = {
+  allowInZone = {
     329, 289, 533, 535, --Stratholme/scholomance; Naxxramas LK 10/25
     558, -- TBC: Auchenai
     532, -- TBC: Karazhan
   },
+}
+constModule.RidingTrinket = {
+  itemIds     = {
+    11122, -- Classic: Item [Carrot on a Stick]
+    25653, -- TBC: Item [Riding Crop]
+    32481, -- TBC: Item [Charm of Swift Flight]
+  },
+  --spells  = {
+  --  13587, -- Classic: Carrot on a Stick
+  --  48776, -- TBC: Riding Crop +10%
+  --  48403, -- TBC: Druid "Charm of Swift Flight" +10%
+  --},
+  --Allow Riding Speed trinkets in:
+  allowInZone = {
+    0, 1, 530, -- Eastern Kingdoms, Kalimdor, Outland
+    30, -- Alterac Valley
+    529, -- Arathi Basin,
+    489, -- Warsong Gulch
+    566, 968, -- TBC: Eye of the Storm
+    1672, 1505, 572 }, -- TBC: Blade's Edge Arena, Nagrand Arena, Ruins of Lordaeron
 }
 
 ---------------------

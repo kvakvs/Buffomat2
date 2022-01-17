@@ -160,7 +160,7 @@ local function bm2CreateSpellsTab()
   local rowBuilder = rowbuilderModule:New(BM2_SPELL_TAB)
   for buffIndex, buffId in ipairs(profileModule.active.selectedBuffs) do
     local buff = spellsDb.allPossibleBuffs[buffId]
-    if buff and buff:IsClassBuff() then
+    if buff and buff:IsCastedBuff() then
       rowBuilder:CreateTabRow(buff)
     end
   end

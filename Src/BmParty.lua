@@ -6,12 +6,14 @@
 ---@field memberCache table<string, Bm2Member> Cache of party members
 ---@field partyUpdateNeeded boolean Set to true on party change event to rescan the party
 ---@field someoneIsGhost boolean Set to true if someone has released the spirit
+---@field buffSourceCache table<string, string> [buffId]=>Unit; Stores who casted certain buffs on player
 local partyModule = Bm2Module.DeclareModule("Party")
+partyModule.buffSourceCache = {}
 
 local constModule = Bm2Module.Import("Const") ---@type Bm2ConstModule
 local uiModule = Bm2Module.Import("Ui"); ---@type Bm2UiModule
 local memberModule = Bm2Module.Import("Member"); ---@type Bm2MemberModule
-local memberBuffModule = Bm2Module.Import("MemberBuff"); ---@type Bm2MemberBuffModule
+local buffOnUnitModule = Bm2Module.Import("BuffOnUnit"); ---@type Bm2BuffOnUnitModule
 local engineModule = Bm2Module.Import("Engine"); ---@type Bm2EngineModule
 local toolModule = Bm2Module.Import("Tool"); ---@type Bm2ToolModule
 local spellsDb = Bm2Module.Import("SpellsDb"); ---@type Bm2SpellsDbModule
@@ -50,11 +52,11 @@ local function bm2GetPartySize()
   return count
 end
 
----@return Bm2Member
 ---@param unitid string Player name or special name like "raidpet#"
 ---@param nameGroup number The raid party this character is currently a member of. Raid subgroups are numbered as on the standard raid window.
 ---@param nameRole string The player's role within the raid ("MAINTANK" or "MAINASSIST").
-local function bm2GetMember(unitid, nameGroup, nameRole, specialName)
+---@return Bm2Member
+function partyModule:GetMember(unitid, nameGroup, nameRole, specialName)
   local name, _unitRealm = UnitFullName(unitid)
   if name == nil then
     return nil
@@ -109,13 +111,13 @@ local function bm2Get5manPartyMembers(player_member)
   local member ---@type Bm2Member
 
   for groupIndex = 1, 4 do
-    member = bmGetMember("party" .. groupIndex)
+    member = partyModule:GetMember("party" .. groupIndex)
 
     if member then
       tinsert(party, member)
     end
 
-    member = bm2GetMember("partypet" .. groupIndex, nil, nil, true)
+    member = partyModule:GetMember("partypet" .. groupIndex, nil, nil, true)
 
     if member then
       member.group = 9
@@ -124,10 +126,10 @@ local function bm2Get5manPartyMembers(player_member)
     end
   end
 
-  player_member = bm2GetMember("player")
+  player_member = partyModule:GetMember("player")
   tinsert(party, player_member)
 
-  member = bm2GetMember("pet", nil, nil, true)
+  member = partyModule:GetMember("pet", nil, nil, true)
 
   if member then
     member.group = 9
@@ -158,7 +160,7 @@ local function bm2Get40manRaidMembers(player_member)
   end
 
   for raid_index = 1, 40 do
-    local member = bm2GetMember("raid" .. raid_index, name_group, name_role)
+    local member = partyModule:GetMember("raid" .. raid_index, name_group, name_role)
 
     if member then
       if UnitIsUnit(member.unitId, "player") then
@@ -166,7 +168,7 @@ local function bm2Get40manRaidMembers(player_member)
       end
       tinsert(party, member)
 
-      member = bm2GetMember("raidpet" .. raid_index, nil, nil, true)
+      member = partyModule:GetMember("raidpet" .. raid_index, nil, nil, true)
       if member then
         member.group = 9
         member.class = "pet"

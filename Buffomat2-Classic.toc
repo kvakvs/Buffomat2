@@ -32,7 +32,7 @@ Src/Engine.lua
 Src/Events.lua
 Src/Macro.lua
 Src/BmMember.lua
-Src/MemberBuff.lua
+Src/BuffOnUnit.lua
 Src/Options/Options.lua
 Src/BmParty.lua
 Src/Profile.lua
@@ -44,6 +44,7 @@ Src/SpellsDb/ItemDef.lua
 Src/SpellsDb/Priest.lua
 Src/SpellsDb/SpellDef.lua
 Src/SpellsDb/SpellsDb.lua
+Src/Task.lua
 Src/TaskList.lua
 Src/Translation.lua
 

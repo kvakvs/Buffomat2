@@ -41,8 +41,8 @@ end
 ---UNIT_POWER_UPDATE: "unitTarget", "powerType"
 local function bm2event_UNIT_POWER_UPDATE(_eventName, unitTarget, powerType)
   if powerType == "MANA" and UnitIsUnit(unitTarget, "player") and not InCombatLockdown() then
-    local max_mana = UnitPowerMax("player", constModule.POWER_MANA) or 0
-    local actual_mana = UnitPower("player", constModule.POWER_MANA) or 0
+    local max_mana = UnitPowerMax("player", constModule.PowertypeMana) or 0
+    local actual_mana = UnitPower("player", constModule.PowertypeMana) or 0
 
     if max_mana <= actual_mana then
       engine:SetForceUpdate("power change")

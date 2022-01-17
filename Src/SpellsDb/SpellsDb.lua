@@ -2,11 +2,16 @@
 ---@class Bm2SpellsDbModule
 ---@field allPossibleBuffs table<string, Bm2BuffDefinition> All buff definitions, with string keys
 ---@field availableBuffs table<string, Bm2BuffDefinition> Buff definitions which the player knows
+---@field singleBuffSpellIds table<string, Bm2SpellDefinition> Spells lookup single only
+---@field groupBuffSpellIds table<string, Bm2BuffDefinition> Spells lookup group only
 ---@field allCancelBuffs table<number, Bm2BuffDefinition> Buff definitions to show in cancel buff list
 ---@field enchantIds table<number, string> Weapon enchantment id to buff id reverse lookup
 ---@field availableSpellIds table<number, number> Ids of spells available to the player, for combat log filtering
 ---@field buffReverseLookup table<number, Bm2BuffDefinition> Reverse lookup of buff by spellid
 ---@field enchantmentIdBuffReverseLookup table<number, Bm2BuffDefinition> Reverse lookup of buff by enchantmentId
+---@field itemIdBuffReverseLookup table<number, Bm2BuffDefinition> Reverse lookup of buff by itemId
+---@field buffHighestAvailableSingle table<string, Bm2SpellDefinition> Highest available single buff spell for a buff id
+---@field buffHighestAvailableGroup table<string, Bm2SpellDefinition> Highest available group buff spell for a buff id
 local spellsDbModule = Bm2Module.DeclareModule("SpellsDb")
 
 local buffDef = Bm2Module.DeclareModule("SpellsDb/BuffDef") ---@type Bm2BuffDefModule
@@ -21,6 +26,7 @@ spellsDbModule.allCancelBuffs = {}
 spellsDbModule.availableSpellIds = {} -- for combat log filtering
 spellsDbModule.buffReverseLookup = {} -- for finding buff defs by spellid
 spellsDbModule.enchantmentIdBuffReverseLookup = {} -- for finding buff defs by enchantmentId
+spellsDbModule.itemIdBuffReverseLookup = {} -- for finding buff defs by itemid
 spellsDbModule.ignoreMembersWithAura = {
   4511 -- Phase Shift (imp)
 }
@@ -106,8 +112,8 @@ end
 
 ---Build a table of spells known to Buffomat, for all classes
 function spellsDbModule:InitSpellsDb()
-  wipe(spellsDbModule.allPossibleBuffs)
-  wipe(spellsDbModule.enchantIds)
+  wipe(self.allPossibleBuffs)
+  wipe(self.enchantIds)
 
   -- TODO: Call class spell init functions only if player class matches
   priestModule:Spells()
@@ -151,27 +157,40 @@ end
 ---spells which we actually have available to the player. This list might change
 ---for example due to level up, visiting a trainer, etc.
 function spellsDbModule:FilterAvailableSpells()
-  wipe(spellsDbModule.availableBuffs)
-  wipe(spellsDbModule.availableSpellIds)
-  wipe(spellsDbModule.buffReverseLookup)
+  wipe(self.availableBuffs)
+  wipe(self.availableSpellIds)
+  wipe(self.singleBuffSpellIds)
+  wipe(self.groupBuffSpellIds)
+  wipe(self.buffReverseLookup)
+  wipe(self.buffHighestAvailableSingle)
+  wipe(self.buffHighestAvailableGroup)
 
-  for _index, buff in pairs(spellsDbModule.allPossibleBuffs) do
+  for _index, buff in pairs(self.allPossibleBuffs) do
     if buff:IsAvailable() then
-      spellsDbModule.availableBuffs[buff.buffId] = buff
+      self.availableBuffs[buff.buffId] = buff
 
       for _, spell in ipairs(buff.singleBuff) do
         if spell:IsAvailable() then
-          spellsDbModule.availableSpellIds[spell.id] = true
-          spellsDbModule.buffReverseLookup[spell.id] = buff
+          self.availableSpellIds[spell.spellId] = true
+          self.buffReverseLookup[spell.spellId] = buff
+          self.buffHighestAvailableSingle[buff.buffId] = spell
+          self.singleBuffSpellIds[buff.buffId] = spell
         end
       end -- for single buffs
 
       for _, spell in ipairs(buff.groupBuff) do
         if spell:IsAvailable() then
-          spellsDbModule.availableSpellIds[spell.id] = true
-          spellsDbModule.buffReverseLookup[spell.id] = buff
+          self.availableSpellIds[spell.spellId] = true
+          self.buffReverseLookup[spell.spellId] = buff
+          self.buffHighestAvailableGroup[buff.buffId] = spell
+          self.groupBuffSpellIds[spell.spellId] = spell
         end
       end -- for group buffs
     end -- if available
   end
+end
+
+---
+function spellsDbModule:IsSpellAvailable(spellId)
+  return self.availableSpellIds[spellId] ~= nil
 end

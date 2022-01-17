@@ -1,7 +1,7 @@
 ---@class Bm2ProfileModule
 ---@field activeProfileName string|nil One of solo, party, raid, pvp...
 ---@field active Bm2Profile
-local profileModule = Bm2Module.DeclareModule("Profile")
+local profileModule = Bm2Module.DeclareModule("Profile") ---@type Bm2ProfileModule
 
 local spellsDb = Bm2Module.Import("SpellsDb") ---@type Bm2SpellsDbModule
 
@@ -12,6 +12,9 @@ end
 
 ---@class Bm2Profile
 ---@field selectedBuffs table<number, string> buffIds to watch and rebuff
+---@field buffTargets table<string, table<number, string>> [buffId]=>table<Unit>; For targeted buffs from an item (like soulstone) stores preferred targets
+---@field selectedMainhandBuff string buffId for mainhand enchantment
+---@field selectedOffhandBuff string buffId for offhand enchantment
 ---@field cancelBuffs table<number, string> buffIds to cancel on combat start
 ---@field doNotScanGroup table<number, boolean> raidgroups which user clicked to not scan.
 ---@field scanInRestAreas boolean
@@ -29,29 +32,50 @@ end
 ---@field warnReputationTrinket boolean Queue gear change task, if user forgot their rep trinket on where it does not work
 ---@field warnRidingTrinket boolean Queue gear change task, if user uses riding trinket
 ---@field warnNoWeapon boolean Queue gear change task, if user has no weapon (disappeared after Kael'thas fight or unequipped) or fishing pole
+---@field warnNoEnchantment boolean Warn about missing enchantment
+---@field openLootableInBag boolean Prompt looting quest bags, clams, opened lockboxes etc
+---@field reminderConsumables boolean Instead of queuing an item use, queue a comment for consumables
+---@field noBuffWithDeadMembers boolean Instead of queuing an item use, queue a comment for consumables
+---@field replaceSingleWithGroup boolean Allow overwriting single buffs with group buffs
+local profileClass = {} ---@type Bm2Profile
+profileClass.__index = profileClass
 
 ---@return Bm2Profile
 function profileModule:NewProfile()
-  return {
-    selectedBuffs         = profileModule:GetDefaultEnabledBuffs(),
-    cancelBuffs           = {}, -- list(buffId)
-    doNotScanGroup        = {}, -- [number] => true
-    scanInRestAreas       = true,
-    scanInOpenWorld       = true,
-    scanInDungeons        = true,
-    scanInPvp             = true,
-    scanInStealth         = false,
-    scanWhileMounted      = false,
-    preventPvpTag         = true,
-    autoDismountGround    = true,
-    autoDismountFlying    = false,
-    autoStand             = true,
-    autoLeaveShapeshift   = true,
-    autoCrusaderAura      = true,
-    warnReputationTrinket = true,
-    warnRidingTrinket     = true,
-    warnNoWeapon          = true,
-  }
+  local p = {} ---@type Bm2Profile
+  setmetatable(p, profileClass)
+
+  p.selectedBuffs = profileModule:GetDefaultEnabledBuffs()
+  p.buffTargets = {}
+  p.selectedMainhandBuff = nil -- buffid
+  p.selectedOffhandBuff = nil -- buffid
+  p.cancelBuffs = {} -- list(buffId)
+  p.doNotScanGroup = {} -- [number] => true
+  p.scanInRestAreas = true
+  p.scanInOpenWorld = true
+  p.scanInDungeons = true
+  p.scanInPvp = true
+  p.scanInStealth = false
+  p.scanWhileMounted = false
+  p.preventPvpTag = true
+  p.autoDismountGround = true
+  p.autoDismountFlying = false
+  p.autoStand = true
+  p.autoLeaveShapeshift = true
+  p.autoCrusaderAura = true
+  p.warnReputationTrinket = true
+  p.warnRidingTrinket = true
+  p.warnNoWeapon = true
+  p.warnNoEnchantment = true
+  p.openLootableInBag = true
+  p.reminderConsumables = false
+  p.noBuffWithDeadMembers = true
+  p.replaceSingleWithGroup = true
+  return p
+end
+
+function profileClass:IsScanGroupEnabled(n)
+  return self.doNotScanGroup[n] == nil
 end
 
 ---User clicked profile selection menu

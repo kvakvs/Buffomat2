@@ -2,17 +2,17 @@
 local memberModule = Bm2Module.DeclareModule("Member")
 
 --local engineModule = Bm2Module.Import("Engine"); ---@type Bm2EngineModule
-local partyModule = Bm2Module.Import("Party"); ---@type Bm2PartyModule
-local memberBuffModule = Bm2Module.Import("MemberBuff"); ---@type Bm2MemberBuffModule
+--local partyModule = Bm2Module.Import("Party"); ---@type Bm2PartyModule
+local buffOnUnitModule = Bm2Module.Import("BuffOnUnit"); ---@type Bm2BuffOnUnitModule
 local engineModule = Bm2Module.Import("Engine"); ---@type Bm2EngineModule
 local spellsDb = Bm2Module.Import("SpellsDb"); ---@type Bm2SpellsDbModule
 
 ---A party member or a player
 ---@class Bm2Member
 ---@field buffExists table<number, boolean> Availability of all auras even those not supported by BOM, by id, no extra detail stored
----@field buffs table<string, Bm2MemberBuff> Buffs on player keyed by spell id, only buffs supported by Buffomat are stored
----@field mainHandEnchantment Bm2MemberBuff|nil Mainhand player weapon buff
----@field offHandEnchantment Bm2MemberBuff|nil Offhand player weapon buff
+---@field buffs table<string, Bm2BuffOnUnit> Buffs on player keyed by buffid, only buffs supported by Buffomat are stored
+---@field mainHandEnchantment Bm2BuffOnUnit|nil Mainhand player weapon buff
+---@field offHandEnchantment Bm2BuffOnUnit|nil Offhand player weapon buff
 ---@field class string
 ---@field distance number
 ---@field group number Raid group number (9 if temporary moved out of the raid by BOM)
@@ -22,6 +22,7 @@ local spellsDb = Bm2Module.Import("SpellsDb"); ---@type Bm2SpellsDbModule
 ---@field isConnected boolean Is online
 ---@field isDead boolean Is this member dead
 ---@field isGhost boolean Is dead and corpse released
+---@field isSameZone boolean Same zone as the player. Updated in party.GetPartyMembers()
 ---@field isPlayer boolean Is this a player
 ---@field isTank boolean Is this member marked as tank
 ---@field link string
@@ -29,8 +30,7 @@ local spellsDb = Bm2Module.Import("SpellsDb"); ---@type Bm2SpellsDbModule
 ---@field needBuff boolean
 ---@field unitId string
 
----@type Bm2Member
-local memberClass = {}
+local memberClass = {} ---@type Bm2Member
 memberClass.__index = memberClass
 
 ---@return Bm2Member
@@ -39,6 +39,10 @@ function memberModule:New()
   setmetatable(fields, memberClass)
 
   return fields
+end
+
+function memberClass:HasBuff(buffId)
+  return self.buffs[buffId] ~= nil
 end
 
 ---@param unitid string
@@ -120,7 +124,7 @@ function memberClass:ForceUpdateBuffs(player)
         --  self.hasCarrot = true
         --end
 
-        self.buffs[buffId] = memberBuffModule:New(
+        self.buffs[buffId] = buffOnUnitModule:New(
             buffId,
             spellId,
             nil,

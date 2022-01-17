@@ -5,7 +5,7 @@ local itemDefModule = Bm2Module.DeclareModule("ItemDef")
 ---@field name string Useful name for debugging
 ---@field id number Ingame item id
 ---@field isTBC boolean
-local classItemDef = {}
+local classItemDef = {} ---@type Bm2ItemDefinition
 classItemDef.__index = classItemDef
 
 ---@return Bm2ItemDefinition

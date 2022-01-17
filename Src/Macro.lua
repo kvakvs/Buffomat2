@@ -42,3 +42,13 @@ function macroModule:Recreate()
     CreateMacro(bm2const.MacroName, bm2const.MacroIcon, "", isChar)
   end
 end
+
+---Returns /target T<newline> or ""
+function macroModule:MacroTarget(target)
+  return target and ("/target " .. target .. "/n") or ""
+end
+
+---Returns /use itembag itemslot<newline>
+function macroModule:MacroUseItem(bag, slot)
+  return "/use " .. bag .. " " .. slot
+end

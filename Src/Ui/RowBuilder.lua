@@ -10,7 +10,7 @@ local uiModule = Bm2Module.Import("Ui") ---@type Bm2UiModule
 ---@field x number
 ---@field y number
 ---@field rowHeight number
-local classRowBuilder = {}
+local classRowBuilder = {} ---@type Bm2RowBuilder
 classRowBuilder.__index = classRowBuilder
 
 ---@return Bm2RowBuilder
@@ -50,7 +50,7 @@ function classRowBuilder:CreateTabRow(buff)
   elseif buff.buffType == buffDef.BUFFTYPE_ITEM_USE then
     Bm2Addon:Print("tab row for item " .. buff.buffId)
 
-  elseif buff.buffType == buffDef.BUFFTYPE_ITEM_TARGET_USE then
+  elseif buff.buffType == buffDef.BUFFTYPE_ITEM_TARGET_UNIT then
     Bm2Addon:Print("tab row for targeted " .. buff.buffId)
 
   else
@@ -64,7 +64,7 @@ function classRowBuilder:CreateConsumableTabRow(buff)
   if buff.buffType == buffDef.BUFFTYPE_ITEM_USE then
     Bm2Addon:Print("tab row for item " .. buff.buffId)
 
-  elseif buff.buffType == buffDef.BUFFTYPE_ITEM_TARGET_USE then
+  elseif buff.buffType == buffDef.BUFFTYPE_ITEM_TARGET_UNIT then
     Bm2Addon:Print("tab row for targeted " .. buff.buffId)
 
   else
