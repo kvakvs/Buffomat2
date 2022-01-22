@@ -220,7 +220,7 @@ function partyModule:GetPartyMembers()
 
     partyModule.partyCache = party
     partyModule.playerMemberCache = playerMember
-    engineModule:CleanBuffsForParty()
+    engineModule:CleanBuffsForParty(party)
 
     engineModule:SetForceUpdate("joined party") -- always read all buffs on new party!
   end

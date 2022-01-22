@@ -108,3 +108,15 @@ function taskClass:GetButtonText()
   Bm2Addon:Print("Don't know how to GetButtonText for task type " .. self.type)
   return nil
 end
+
+---Returns text to display in the task list, when the target for the spell in
+---task is reachable, the spell is castable, has reagents and has enough mana
+function taskClass:GetTasklistText()
+  if self.type == taskModule.TASKTYPE_COMMENT then
+    return "//" .. self.text
+  end
+  if self.type == taskModule.TASKTYPE_ERROR then
+    return "!" .. self.text
+  end
+  return self.type .. " @" .. self.target
+end

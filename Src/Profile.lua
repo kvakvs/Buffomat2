@@ -43,7 +43,8 @@ local profileClass = {} ---@type Bm2Profile
 profileClass.__index = profileClass
 
 ---@return Bm2Profile
-function profileModule:NewProfile()
+---@param profileName string
+function profileModule:NewProfile(profileName)
   local p = {} ---@type Bm2Profile
   setmetatable(p, profileClass)
 
@@ -68,7 +69,7 @@ function profileModule:NewProfile()
   p.warnReputationTrinket = true
   p.warnRidingTrinket = true
   p.warnNoWeapon = true
-  p.warnNoEnchantment = true
+  p.warnNoEnchantment = profileName == "raid"
   p.openLootableInBag = true
   p.reminderConsumables = false
   p.noBuffWithDeadMembers = true

@@ -1,7 +1,7 @@
 ---@class Bm2UiMainWindowModule
 ---@field windowHideBehaviour string Store user intent, "keepOpen", "keepClosed", "autoOpen", "autoClosed"
 ---@field spellTabsCreatedFlag boolean Set to true after spells have been scanned and added to the Spells tab
-local mainwindowModule = Bm2Module.DeclareModule("Ui/MainWindow")
+local mainWindowModule = Bm2Module.DeclareModule("Ui/MainWindow")
 
 local _t = Bm2Module.Import("Translation") ---@type Bm2TranslationModule
 local constModule = Bm2Module.Import("Const") ---@type Bm2ConstModule
@@ -15,7 +15,7 @@ local BM2INTENT_AUTO_CLOSED = "autoClosed"
 local BM2INTENT_AUTO_OPEN = "autoOpen"
 local BM2INTENT_KEEP_CLOSED = "keepClosed"
 local BM2INTENT_KEEP_OPEN = "keepOpen"
-mainwindowModule.windowHideBehaviour = BM2INTENT_AUTO_CLOSED
+mainWindowModule.windowHideBehaviour = BM2INTENT_AUTO_CLOSED
 
 local function bm2SaveWindowPosition()
   Bm2Addon.db.char.mainWindowX = BM2_MAIN_WINDOW:GetLeft()
@@ -67,20 +67,22 @@ function uiModule:SetupMainWindow()
 end
 
 ---Close window and set close reason to "user clicked close button"
-function mainwindowModule:HideWindow(reason)
-  if BM2_MAIN_WINDOW:IsVisible() then
+function mainWindowModule:HideWindow(reason)
+  if not InCombatLockdown() and BM2_MAIN_WINDOW:IsVisible() then
     BM2_MAIN_WINDOW:Hide()
-    mainwindowModule.windowHideBehaviour = BM2INTENT_KEEP_CLOSED
+    mainWindowModule.windowHideBehaviour = BM2INTENT_KEEP_CLOSED
     taskListModule:Scan(reason)
+  else
+    Bm2Addon:Print(_t("Can't hide window in combat"))
   end
 end
 
 --- Show the addon window; Save user intent to keep the window open
-function mainwindowModule:ShowWindow(tab)
+function mainWindowModule:ShowWindow(tab)
   if not InCombatLockdown() then
     if not BM2_MAIN_WINDOW:IsVisible() then
       BM2_MAIN_WINDOW:Show()
-      mainwindowModule.windowHideBehaviour = BM2INTENT_KEEP_OPEN
+      mainWindowModule.windowHideBehaviour = BM2INTENT_KEEP_OPEN
     else
       Bm2Addon.OnCloseClick()
     end
@@ -90,22 +92,22 @@ function mainwindowModule:ShowWindow(tab)
   end
 end
 
-function mainwindowModule.ToggleWindow()
+function mainWindowModule.ToggleWindow()
   local reason = "toggle window"
 
   if BM2_MAIN_WINDOW:IsVisible() then
-    mainwindowModule:HideWindow(reason)
+    mainWindowModule:HideWindow(reason)
   else
     taskListModule:Scan(reason)
-    mainwindowModule:ShowWindow()
+    mainWindowModule:ShowWindow()
   end
 end
 
 ---Call this to suggest opening window, unless user closed it with a X button
-function mainwindowModule.AutoOpen()
+function mainWindowModule.AutoOpen()
   if not InCombatLockdown() and Bm2Addon.db.char.autoOpen then
-    if not BM2_MAIN_WINDOW:IsVisible() and mainwindowModule.windowHideBehaviour ~= "keepClosed" then
-      mainwindowModule.windowHideBehaviour = BM2INTENT_AUTO_OPEN
+    if not BM2_MAIN_WINDOW:IsVisible() and mainWindowModule.windowHideBehaviour ~= "keepClosed" then
+      mainWindowModule.windowHideBehaviour = BM2INTENT_AUTO_OPEN
       BM2_MAIN_WINDOW:Show()
       uiModule.SelectTab(BM2_MAIN_WINDOW, 1)
     end
@@ -113,32 +115,32 @@ function mainwindowModule.AutoOpen()
 end
 
 ---Call this to suggest closing the window, unless user opened it explicitly with a command or a key
-function mainwindowModule.AutoClose()
+function mainWindowModule.AutoClose()
   if not InCombatLockdown() and Bm2Addon.db.char.autoOpen then
     if BM2_MAIN_WINDOW:IsVisible() then
-      if mainwindowModule.windowHideBehaviour ~= BM2INTENT_KEEP_OPEN then
+      if mainWindowModule.windowHideBehaviour ~= BM2INTENT_KEEP_OPEN then
         BM2_MAIN_WINDOW:Hide()
-        mainwindowModule.windowHideBehaviour = BM2INTENT_AUTO_CLOSED
+        mainWindowModule.windowHideBehaviour = BM2INTENT_AUTO_CLOSED
       end
-    elseif mainwindowModule.windowHideBehaviour ~= BM2INTENT_KEEP_OPEN then
-      mainwindowModule.windowHideBehaviour = BM2INTENT_AUTO_CLOSED
+    elseif mainWindowModule.windowHideBehaviour ~= BM2INTENT_KEEP_OPEN then
+      mainWindowModule.windowHideBehaviour = BM2INTENT_AUTO_CLOSED
     end
   end
 end
 
 ---If the window was force-closed, allow it to auto open again
 ---This is called from combat end
-function mainwindowModule.AllowAutoOpen()
+function mainWindowModule.AllowAutoOpen()
   if not InCombatLockdown() and Bm2Addon.db.char.autoOpen then
-    if mainwindowModule.windowHideBehaviour == BM2INTENT_KEEP_CLOSED then
-      mainwindowModule.windowHideBehaviour = BM2INTENT_AUTO_CLOSED
+    if mainWindowModule.windowHideBehaviour == BM2INTENT_KEEP_CLOSED then
+      mainWindowModule.windowHideBehaviour = BM2INTENT_AUTO_CLOSED
     end
   end
 end
 
 ---@param t string Display text on cast button
 ---@param enable boolean Enable or disable the button
-function mainwindowModule:CastButton(t, enable)
+function mainWindowModule:CastButton(t, enable)
   -- not really a necessary check but for safety
   if InCombatLockdown()
       or BM2_TASKS_TAB_CAST_BUTTON == nil
@@ -308,7 +310,7 @@ end
 
 ---UpdateSpellTabs - create rows in the spell tabs (if were not created), update
 ---checkboxes on the spell rows matching the current selected profile.
-function mainwindowModule:UpdateSpellTabs()
+function mainWindowModule:UpdateSpellTabs()
   if InCombatLockdown() then
     return
   end

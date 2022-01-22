@@ -19,7 +19,7 @@ local constModule = Bm2Module.Import("Const") ---@type Bm2ConstModule
 local engineModule = Bm2Module.Import("Engine") ---@type Bm2EngineModule
 local eventsModule = Bm2Module.Import("Events")---@type Bm2EventsModule
 local macroModule = Bm2Module.Import("Macro") ---@type Bm2MacroModule
-local mainWindow = Bm2Module.Import("Ui/MainWindow") ---@type Bm2UiMainWindowModule
+local mainWindowModule = Bm2Module.Import("Ui/MainWindow") ---@type Bm2UiMainWindowModule
 local partyModule = Bm2Module.Import("Party")---@type Bm2PartyModule
 local profileModule = Bm2Module.Import("Profile")---@type Bm2ProfileModule
 local spellsDb = Bm2Module.Import("SpellsDb")---@type Bm2SpellsDbModule
@@ -461,22 +461,20 @@ end
 ---Add a text comment to the task list
 ---@param state Bm2ScanState
 function taskListModule:QueueComment(state, text)
-  tinsert(state.tasks, taskModule:NewComment(text))
+  tinsert(state.messages, taskModule:NewComment(text))
 end
 
 ---Add a text comment to the task list
 ---@param state Bm2ScanState
 function taskListModule:QueueError(state, text)
-  tinsert(state.tasks, taskModule:NewError(text))
+  tinsert(state.messages, taskModule:NewError(text))
 end
 
 ---@class Bm2ScanState
 ---@field player Bm2Member
 ---@field party table<number, Bm2Member>
----@field inRange boolean
----@field castButtonTitle string
----@field macroCommand string
 ---@field tasks table<number, Bm2Task> Tasklist to be stored as taskListModule.tasks in the end
+---@field messages table<number, Bm2Task> "Tasks" which do not cast anything, just error and warning messages
 ---@field someoneIsDead boolean Prevent buffing if the group contains dead people (also a profile option)
 
 ---Adds a summon spell to the tasks
@@ -788,7 +786,6 @@ local function bm2AddResurrection(state, buff)
           and not tContains(buff.calculatedSkiplist, member.name)
 
       if canCast then
-        state.inRange = true
         taskListModule:QueueBuff(state, member.name, buff.buffId)
 
         ---- Text: Target [Spell Name]
@@ -1116,7 +1113,6 @@ local function bm2ScanOneSpell(state, buff)
   elseif buff:IsConsumableBuff() then
     if next(buff.calculatedTargets) ~= nil then
       bm2AddConsumableSelfbuff(state, buff)
-      state.inRange = true
     end
 
     --elseif buff.isInfo then
@@ -1373,17 +1369,75 @@ local function bm2CheckItemsAndContainers(state)
   end
 end
 
+---@param state Bm2ScanState
+function taskListModule:DisplayTasklist(state)
+  local tabFrame = BM2_TASKS_TAB_MESSAGE_FRAME
+  tabFrame:Clear()
+
+  for i, task in ipairs(state.messages) do
+    tabFrame:AddMessage(task:GetTasklistText())
+  end
+
+  for i, task in ipairs(state.tasks) do
+    tabFrame:AddMessage(task:GetTasklistText())
+  end
+end
+
+---From the current situation and the task list, choose the text label for the
+---cast button and whether it will be enabled or disabled.
+---@param state Bm2ScanState
+function taskListModule:Scan_Step3_CastButton(state)
+  if eventsModule.playerIsCasting == "cast" then
+    --Print player is busy (casting normal spell)
+    mainWindowModule:CastButton(_t("Player is casting"), false)
+    macroModule:Clear()
+    return
+  end
+
+  if eventsModule.playerIsCasting == "channel" then
+    --Print player is busy (casting channeled spell)
+    mainWindowModule:CastButton(_t("Player is channeling"), false)
+    macroModule:Clear()
+    return
+  end
+
+  if state.someoneIsDead and profileModule.active.noBuffWithDeadMembers then
+    --Someone is dead, and an option is set to prevent buffing
+    mainWindowModule:CastButton(_t("Someone is dead"), false)
+    macroModule:Clear()
+    return
+  end
+
+  local _i, nextTask = next(state.tasks) ---@type Bm2Task
+  if nextTask == nil then
+    mainWindowModule:CastButton(_t("Nothing to do"), false)
+    macroModule:Clear()
+    engineModule:ClearSkipList()
+    return
+  end
+
+  --Next cast is already defined - update the button text
+  mainWindowModule:CastButton(nextTask:GetButtonText(), true)
+  macroModule:Macro(nextTask:GetMacro())
+
+  --local cooldownTest = GetSpellCooldown(nextTask.SpellId) or 0
+  --if cooldownTest > 0 then
+  --  BOM.CheckCoolDown = nextTask.SpellId
+  --  BomC_ListTab_Button:Disable()
+  --else
+  --  BomC_ListTab_Button:Enable()
+  --end
+end
+
 ---Continue scanning for active buffs which are missing on targets
 ---@return table<number, Bm2Task> New value to replace taskListModule.tasks
 function taskListModule:Scan_Step2()
   local party, player = partyModule:GetPartyMembers()
   local state = {
-    player          = player,
-    party           = party,
-    inRange         = false,
-    castButtonTitle = "",
-    macroCommand    = "",
-    tasks           = {},
+    player   = player,
+    party    = party,
+    tasks    = {},
+    messages = {},
   } ---@type Bm2ScanState
 
   if engineModule.forceUpdate then
@@ -1425,87 +1479,19 @@ function taskListModule:Scan_Step2()
   -- Open Buffomat if any cast tasks were added to the task list
   -- TODO: fix from here
   if next(state.tasks) ~= nil then
-    BOM.AutoOpen()
+    mainWindowModule:AutoOpen()
   else
-    BOM.AutoClose()
+    mainWindowModule:AutoClose()
   end
 
-  tasklist:Display() -- Show all tasks and comments
+  taskListModule:DisplayTasklist(state) -- Show all tasks and comments
 
-  BOM.ForceUpdate = false
+  engineModule.forceUpdate = false
 
-  if BOM.PlayerCasting == "cast" then
-    --Print player is busy (casting normal spell)
-    bomCastButton(L.MsgBusy, false)
-    bomUpdateMacro()
+  -- select first actionable task (already sorted) and set cast button to perform it
+  taskListModule:Scan_Step3_CastButton(state)
 
-  elseif BOM.PlayerCasting == "channel" then
-    --Print player is busy (casting channeled spell)
-    bomCastButton(L.MsgBusyChanneling, false)
-    bomUpdateMacro()
-
-  elseif next_cast_spell.Member and next_cast_spell.SpellId then
-    --Next cast is already defined - update the button text
-    bomCastButton(next_cast_spell.Link, true)
-    bomUpdateMacro(next_cast_spell.Member, next_cast_spell.SpellId)
-
-    local cdtest = GetSpellCooldown(next_cast_spell.SpellId) or 0
-
-    if cdtest ~= 0 then
-      BOM.CheckCoolDown = next_cast_spell.SpellId
-      BomC_ListTab_Button:Disable()
-    else
-      BomC_ListTab_Button:Enable()
-    end
-
-    BOM.CastFailedSpell = next_cast_spell.Spell
-    BOM.CastFailedSpellTarget = next_cast_spell.Member
-  else
-    if #tasklist.tasks == 0 then
-      --If don't have any strings to display, and nothing to do -
-      --Clear the cast button
-      bomCastButton(L.MsgNothingToDo, true)
-
-      for spellIndex, spell in ipairs(profileModule.active.selectedBuffs) do
-        if #spell.SkipList > 0 then
-          wipe(spell.SkipList)
-        end
-      end
-
-    else
-      if someoneIsDead and BOM.SharedState.DeathBlock then
-        bomCastButton(L.InactiveReason_DeadMember, false)
-      else
-        if inRange then
-          -- Range is good but cast is not possible
-          bomCastButton(ERR_OUT_OF_MANA, false)
-        else
-          bomCastButton(ERR_SPELL_OUT_OF_RANGE, false)
-          local skipreset = false
-
-          for spellIndex, spell in ipairs(profileModule.active.selectedBuffs) do
-            if #spell.SkipList > 0 then
-              skipreset = true
-              wipe(spell.SkipList)
-            end
-          end
-
-          if skipreset then
-            BOM.FastUpdateTimer()
-            BOM.SetForceUpdate("SkipReset")
-          end
-        end -- if inrange
-      end -- if somebodydeath and deathblock
-    end -- if #display == 0
-
-    if castButtonTitle then
-      bomCastButton(castButtonTitle, true)
-    end
-
-    bomUpdateMacro(nil, nil, macroCommand)
-  end -- if not player casting
-
-  return tasks
+  return state.tasks
 end
 
 function taskListModule:Scan(caller)
@@ -1525,16 +1511,16 @@ function taskListModule:Scan(caller)
   local isBm2Active, reasonDisabled = bm2IsActive()
   if not isBm2Active then
     engineModule.forceUpdate = false
-    mainWindow:AutoClose()
+    mainWindowModule:AutoClose()
     macroModule:Clear()
-    mainWindow:CastButton(reasonDisabled, false)
+    mainWindowModule:CastButton(reasonDisabled, false)
     return
   end
 
   --Choose Profile
   local selectedProfile = profileModule:ChooseProfile()
   if profileModule:Activate(selectedProfile) then
-    mainWindow:UpdateSpellTabs("tasklist:scan() profile changed")
+    mainWindowModule:UpdateSpellTabs("tasklist:scan() profile changed")
     BM2_MAIN_WINDOW_TITLE:SetText(
         uiModule:FormatTexture(constModule.MacroIconFullpath)
             .. " " .. constModule.AddonName .. " - "

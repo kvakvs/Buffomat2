@@ -309,10 +309,10 @@ function options:GetDefaults()
       useProfiles       = false,
       forceProfile      = "",
       profile           = {
-        solo  = profileModule:NewProfile(),
-        raid  = profileModule:NewProfile(),
-        party = profileModule:NewProfile(),
-        pvp   = profileModule:NewProfile(),
+        solo  = profileModule:NewProfile("solo"),
+        raid  = profileModule:NewProfile("raid"),
+        party = profileModule:NewProfile("party"),
+        pvp   = profileModule:NewProfile("pvp"),
       },
     },
   }
